@@ -1,0 +1,17 @@
+void initIO();
+void configureSensors();
+void readSensors();
+void sendSensorData();
+void showLedFeedback();
+void showLedAssistance();
+void sendAndReceiveBLEData();
+void BLEconfig();
+void sendBLEData();
+void getBLEData();
+void saveConfigurationToFlash();
+void readConfigurationFromFlash();
+void updateConfigurationChar();
+void updateStatistics();
+void calculateOptimalRange();
+void powerOffFunctionality();
+void sleepToSavePower();

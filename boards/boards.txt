@@ -1,0 +1,81 @@
+sensogrip.name=SensoGrip NINA B306
+sensogrip.build.core=arduino
+sensogrip.build.crossprefix=arm-none-eabi-
+sensogrip.build.compiler_path={runtime.tools.arm-none-eabi-gcc.path}/bin/
+
+sensogrip.build.variant=SENSOGRIP_NINAB306
+sensogrip.build.mcu=cortex-m4
+sensogrip.build.extra_flags=
+sensogrip.build.architecture=cortex-m4
+sensogrip.build.fpu=fpv4-sp-d16
+sensogrip.build.float-abi=softfp
+sensogrip.build.board=SENSOGRIP_NINAB306
+sensogrip.build.ldscript=linker_script.ld
+sensogrip.compiler.mbed.arch.define=-DARDUINO_ARCH_NRF52840
+sensogrip.compiler.mbed.defines={build.variant.path}/defines.txt
+sensogrip.compiler.mbed.ldflags={build.variant.path}/ldflags.txt
+sensogrip.compiler.mbed.cflags={build.variant.path}/cflags.txt
+sensogrip.compiler.mbed.cxxflags={build.variant.path}/cxxflags.txt
+sensogrip.compiler.mbed.includes={build.variant.path}/includes.txt
+sensogrip.compiler.mbed.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+sensogrip.compiler.mbed="{build.variant.path}/libs/libmbed.a" "{build.variant.path}/libs/libcc_310_core.a" "{build.variant.path}/libs/libcc_310_ext.a" "{build.variant.path}/libs/libcc_310_trng.a"
+sensogrip.vid.0=0x2341
+sensogrip.pid.0=0x005a
+sensogrip.vid.1=0x2341
+sensogrip.pid.1=0x805a
+
+sensogrip.upload.tool=bossac
+sensogrip.upload.protocol=
+sensogrip.upload.use_1200bps_touch=true
+sensogrip.upload.wait_for_upload_port=true
+sensogrip.upload.native_usb=true
+sensogrip.upload.maximum_size=983040
+sensogrip.upload.maximum_data_size=262144
+
+sensogrip.bootloader.tool=openocd
+sensogrip.bootloader.extra_action.preflash=echo INFO:removed_mass-erase
+sensogrip.bootloader.config=-f target/nrf52.cfg
+sensogrip.bootloader.programmer=-f interface/cmsis-dap.cfg
+sensogrip.bootloader.file=nano33ble/bootloader.hex
+
+##############################################################
+
+ninaDevBoard.name=Dev NINA B306
+ninaDevBoard.build.core=arduino
+ninaDevBoard.build.crossprefix=arm-none-eabi-
+ninaDevBoard.build.compiler_path={runtime.tools.arm-none-eabi-gcc.path}/bin/
+
+ninaDevBoard.build.variant=DEV_NINAB306
+ninaDevBoard.build.mcu=cortex-m4
+ninaDevBoard.build.extra_flags=
+ninaDevBoard.build.architecture=cortex-m4
+ninaDevBoard.build.fpu=fpv4-sp-d16
+ninaDevBoard.build.float-abi=softfp
+ninaDevBoard.build.board=DEV_NINAB306
+ninaDevBoard.build.ldscript=linker_script.ld
+ninaDevBoard.compiler.mbed.arch.define=-DARDUINO_ARCH_NRF52840
+ninaDevBoard.compiler.mbed.defines={build.variant.path}/defines.txt
+ninaDevBoard.compiler.mbed.ldflags={build.variant.path}/ldflags.txt
+ninaDevBoard.compiler.mbed.cflags={build.variant.path}/cflags.txt
+ninaDevBoard.compiler.mbed.cxxflags={build.variant.path}/cxxflags.txt
+ninaDevBoard.compiler.mbed.includes={build.variant.path}/includes.txt
+ninaDevBoard.compiler.mbed.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+ninaDevBoard.compiler.mbed="{build.variant.path}/libs/libmbed.a" "{build.variant.path}/libs/libcc_310_core.a" "{build.variant.path}/libs/libcc_310_ext.a" "{build.variant.path}/libs/libcc_310_trng.a"
+ninaDevBoard.vid.0=0x9999
+ninaDevBoard.pid.0=0x9999
+ninaDevBoard.vid.1=0x9999
+ninaDevBoard.pid.1=0x9999
+
+ninaDevBoard.upload.tool=bossac
+ninaDevBoard.upload.protocol=
+ninaDevBoard.upload.use_1200bps_touch=true
+ninaDevBoard.upload.wait_for_upload_port=true
+ninaDevBoard.upload.native_usb=true
+ninaDevBoard.upload.maximum_size=983040
+ninaDevBoard.upload.maximum_data_size=262144
+
+ninaDevBoard.bootloader.tool=openocd
+ninaDevBoard.bootloader.extra_action.preflash=echo INFO:removed_mass-erase
+ninaDevBoard.bootloader.config=-f target/nrf52.cfg
+ninaDevBoard.bootloader.programmer=-f interface/cmsis-dap.cfg
+ninaDevBoard.bootloader.file=nano33ble/bootloader.hex
