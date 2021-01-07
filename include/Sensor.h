@@ -4,30 +4,29 @@
   Released into the public domain.
 */
 
-#ifndef SENSOR_H
-#define SENSOR_H
+#pragma once
 #include <Arduino.h>
-
 class Sensor
 {
 private:
 #define numAvgReadings 100
     bool inverse = false;
     int pin;
-    int sensorType = 0;
+    int sensorType;
     int offset = 0;
-    int inputValue = 0;
+    // int inputValue = 0;
     int readings[numAvgReadings];
     int readIndex = 0;
     int referenceValue;
     int referenceRange;
     int upperRange;
     int lowerRange;
-    float pitch = 90;
     long average = 0;
     long total = 0;
+    float pitch = 90;
     float filterPar = 0.9;
     float filteredValue = 0;
+    float outputCorrectionFactor = 1;
     unsigned long updateInterval = 10;
     unsigned long previousMillis = 0;
     long calculateMovingAverage(int input);
@@ -48,11 +47,13 @@ public:
     int getValue();
     int getFilteredValue();
     int getAverage();
+    int getMedian();
     int getRefValue();
     int getRefRange();
     int getUpperRange();
     int getLowerRange();
     int getOffset();
+    float getOutputCorrectionFactor();
     void setFilterPar(float par);
     void setSensorType(int type);
     void setUpdateInterval(int intervalMs);
@@ -63,5 +64,6 @@ public:
     void setLowerRange(int range);
     void setPitch(float angle);
     void setOffset(int sensorOffset);
+    void setOutputCorrectionFactor(float factor);
 };
-#endif
+

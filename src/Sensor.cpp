@@ -71,22 +71,32 @@ void Sensor::calibrate()
 
 int Sensor::getFsrValue()
 {
-    long input = map(analogRead(pin), 0, 1023, 1, 3299);
-    long output = ((input * 100) / (3299 - input) - offset);
+    // long input = map(analogRead(pin), 0, 1023, 1, 3299);
+    // long output = ((input * 100) / (3299 - input) - offset);
+    // return output = (int)(!inverse) ? output : -output;
+    // sensogrip 3V, 2k
+    long input = map(analogRead(pin), 0, 1023, 1, 2999);
+    long output = ((input * 20) / (2999 - input) - offset) * outputCorrectionFactor;
     return output = (int)(!inverse) ? output : -output;
 }
 
 int Sensor::getSensorValue()
 {
-    int output = analogRead(pin) - offset;
+    int output = (analogRead(pin) - offset) * outputCorrectionFactor;
     return output = (int)(!inverse) ? output : -output;
 }
 
 int Sensor::getBatteryValue()
-{
-    int output = map(analogRead(pin), 465, 620, 0, 100);
-    // AR_INTERNAL2V4: 2.4 V reference (internal 0.6 V reference with 4x gain)
-    // int output = map(analogRead(pin), 639, 916, 0, 100);
+{   
+    // int output = map(analogRead(pin), 465, 620, 0, 100);
+    // // AR_INTERNAL2V4: 2.4 V reference (internal 0.6 V reference with 4x gain)
+    // // int output = map(analogRead(pin), 639, 916, 0, 100);
+    // output = constrain(output, 0, 100);
+    // return output = (int)(!inverse) ? output : -output;
+    // sensogrip 100% -> 4.1V , 0% -> 3.2V
+    analogReference(AR_INTERNAL2V4);
+    int output = map(analogRead(pin), 680, 880, 0, 100);
+    analogReference(AR_VDD);
     output = constrain(output, 0, 100);
     return output = (int)(!inverse) ? output : -output;
 }
@@ -101,6 +111,7 @@ void Sensor::update()
 {
     if (millis() - previousMillis >= updateInterval)
     {
+        int inputValue = 0;
         switch (sensorType)
         {
         case 1:
@@ -143,6 +154,26 @@ bool Sensor::isOverRange()
         return false;
 }
 
+int Sensor::getMedian()
+{
+    int swapper;
+    int analogValues[numAvgReadings];
+    std::copy(std::begin(readings),std::end(readings),std::begin(analogValues));
+    for (int out = 0; out < numAvgReadings; out++)
+    {
+        for (int in = out; in < (numAvgReadings - 1); in++)
+        {
+            if (analogValues[in] > analogValues[in + 1])
+            {
+                swapper = analogValues[in];
+                analogValues[in] = analogValues[in + 1];
+                analogValues[in + 1] = swapper;
+            }
+        }
+    }
+    return analogValues[numAvgReadings / 2];
+}
+
 int Sensor::getValue()
 {
     float output = filteredValue / sin(pitch * PI / 180);
@@ -182,6 +213,11 @@ int Sensor::getLowerRange()
 int Sensor::getOffset()
 {
     return offset;
+}
+
+float Sensor::getOutputCorrectionFactor()
+{
+    return outputCorrectionFactor;
 }
 
 void Sensor::setFilterPar(float par)
@@ -235,4 +271,9 @@ void Sensor::setPitch(float angle)
 void Sensor::setOffset(int sensorOffset)
 {
     offset = sensorOffset;
+}
+
+void Sensor::setOutputCorrectionFactor(float factor)
+{
+    outputCorrectionFactor = factor;
 }

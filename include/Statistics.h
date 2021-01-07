@@ -4,8 +4,7 @@
   Released into the public domain.
 */
 
-#ifndef STATISTICS_H
-#define STATISTICS_H
+#pragma once
 #include <Arduino.h>
 class Statistics
 {
@@ -27,4 +26,3 @@ public:
     void setMinutesPoweredOn(unsigned long minutesPoweredOn);
     unsigned int getMinutesPoweredOn();
 };
-#endif

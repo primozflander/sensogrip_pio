@@ -4,8 +4,7 @@
   Released into the public domain.
 */
 
-#ifndef FLASHBLE_H
-#define FLASHBLE_H
+#pragma once
 #include <Arduino.h>
 #include "KVStore.h"
 #include "kvstore_global_api.h"
@@ -26,4 +25,3 @@ public:
     int put(String key, String value);
     String get(String key);
 };
-#endif

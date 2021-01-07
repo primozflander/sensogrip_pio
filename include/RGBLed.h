@@ -4,8 +4,7 @@
   Released into the public domain.
 */
 
-#ifndef RGBLed_H
-#define RGBLed_H
+#pragma once
 #include <Arduino.h>
 class RGBLed
 {
@@ -63,4 +62,3 @@ public:
     void blinkOk();
     void blinkNok();
 };
-#endif

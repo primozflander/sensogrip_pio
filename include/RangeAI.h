@@ -4,8 +4,7 @@
   Released into the public domain.
 */
 
-#ifndef RANGEAI_H
-#define RANGEAI_H
+#pragma once
 #include <Arduino.h>
 class RangeAI
 {
@@ -28,4 +27,3 @@ public:
     int getLowerRange();
     void showData();
 };
-#endif

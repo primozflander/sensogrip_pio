@@ -1,3 +1,5 @@
+#pragma once
+
 void initIO();
 void configureSensors();
 void readSensors();

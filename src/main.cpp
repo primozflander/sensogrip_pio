@@ -1,7 +1,7 @@
 /*
   Project: SensoGripBLE
   Created: 08.09.2020
-  Updated: 17.12.2020
+  Updated: 07.01.2021
   Author:  Primoz Flander
   Arduino board: Sensogrip NINA-B306
   
@@ -26,13 +26,14 @@
 #include "RangeAI.h"
 #include "DebugUtils.h"
 #include "FunctionPrototypes.h"
+// #include "GlobalVariables.h"
 
 BLEService sensoGripService("1111");
-BLEIntCharacteristic refTipValueChar("2001", BLEWrite | BLERead | BLENotify);
+BLEIntCharacteristic refTipValueChar("2001", BLEWrite);
 BLEIntCharacteristic refTipRangeChar("2002", BLEWrite);
 BLEIntCharacteristic refFingerValueChar("2003", BLEWrite);
 BLEIntCharacteristic refFingerRangeChar("2004", BLEWrite);
-BLEBoolCharacteristic feedbackChar("2005", BLEWrite | BLERead | BLENotify);
+BLEBoolCharacteristic feedbackChar("2005", BLEWrite);
 BLEIntCharacteristic ledAssistanceTypeChar("2006", BLEWrite);
 BLEIntCharacteristic tipPressureReleaseDelayChar("2007", BLEWrite);
 BLEIntCharacteristic ledTurnOnSpeedChar("2008", BLEWrite);

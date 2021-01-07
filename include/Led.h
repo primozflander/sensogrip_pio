@@ -4,8 +4,7 @@
   Released into the public domain.
 */
 
-#ifndef LED_H
-#define LED_H
+#pragma once
 #include <Arduino.h>
 class Led
 {
@@ -27,4 +26,3 @@ public:
     void setBrightness(int value);
     int getBrightness();
 };
-#endif

@@ -3,9 +3,7 @@
   Created by Primoz Flander 13.11.2020.
   Released into the public domain.
 */
-
-#ifndef MPU6050_H
-#define MPU6050_H
+#pragma once
 #include "Arduino.h"
 #include "Wire.h"
 #define ADDRESS_LOW 0x68
@@ -92,4 +90,3 @@ public:
     void setFilterGyroCoeff(float coeff);
     void setAccWakeUp();
 };
-#endif
