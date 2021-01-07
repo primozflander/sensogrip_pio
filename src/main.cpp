@@ -26,61 +26,7 @@
 #include "RangeAI.h"
 #include "DebugUtils.h"
 #include "FunctionPrototypes.h"
-// #include "GlobalVariables.h"
-
-BLEService sensoGripService("1111");
-BLEIntCharacteristic refTipValueChar("2001", BLEWrite);
-BLEIntCharacteristic refTipRangeChar("2002", BLEWrite);
-BLEIntCharacteristic refFingerValueChar("2003", BLEWrite);
-BLEIntCharacteristic refFingerRangeChar("2004", BLEWrite);
-BLEBoolCharacteristic feedbackChar("2005", BLEWrite);
-BLEIntCharacteristic ledAssistanceTypeChar("2006", BLEWrite);
-BLEIntCharacteristic tipPressureReleaseDelayChar("2007", BLEWrite);
-BLEIntCharacteristic ledTurnOnSpeedChar("2008", BLEWrite);
-BLEIntCharacteristic ledTipAssistanceColorChar("2009", BLEWrite);
-BLEIntCharacteristic ledFingerAssistanceColorChar("2010", BLEWrite);
-BLEIntCharacteristic ledSimpleAssistanceColorChar("2011", BLEWrite);
-BLEIntCharacteristic ledOkColorChar("2012", BLEWrite);
-BLEIntCharacteristic ledNokColorChar("2013", BLEWrite);
-BLEBoolCharacteristic calibrateChar("2014", BLEWrite);
-BLEBoolCharacteristic aiChar("2015", BLEWrite);
-BLEBoolCharacteristic angleCorrectionChar("2016", BLEWrite);
-BLEBoolCharacteristic minutesPassedInUseChar("2017", BLEWrite);
-BLEBoolCharacteristic minutesPassedInRangeChar("2018", BLEWrite);
-BLEStringCharacteristic fastStreamChar("3000", BLERead | BLENotify, 32);
-BLEStringCharacteristic slowStreamChar("3001", BLERead | BLENotify, 32);
-BLEStringCharacteristic configurationChar("3002", BLERead, 32);
-BLEStringCharacteristic configuration2Char("3003", BLERead, 32);
-
-MPU6050 mpu(Wire);
-Sensor tipSensor(A0, 0, 100, 70);
-Sensor fingerSensor(A1, 1, 500, 350);
-Sensor batteryLevel(A2, 2, 0, 100, 1000);
-RGBLed rgbLed(9, 10, 11, false);
-Led onboardLedR(22, true);
-Led onboardLedG(23, true);
-Led onboardLedB(24, true);
-Led ledBuiltIn(LED_BUILTIN);
-Led ledPwr(LED_PWR);
-FlashBLE Flash;
-Statistics Stats;
-RangeAI tipRangeAI(20, 500);
-RangeAI fingerRangeAI(20, 500);
-
-const int SNZ_PWR = 3;
-const int sendInterval = 50;
-const int BLEInterval = 100;
-const int slowBLEInterval = 1000;
-const int sleepTimer = 300;
-const int ledFeedbackInterval = 10;
-const int statsSaveInterval = 60000;
-long timingStart = 0;
-long timingStop = 0;
-bool positiveFeedback = true;
-bool aiRangeAssistance = false;
-bool angleCorrection = true;
-int ledAssistance = 1;
-int tipPressureReleaseDelay = 80;
+#include "GlobalVariables.h"
 
 void setup()
 {
