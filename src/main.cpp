@@ -194,6 +194,7 @@ void BLEconfig()
     sensoGripService.addCharacteristic(angleCorrectionChar);
     sensoGripService.addCharacteristic(configurationChar);
     sensoGripService.addCharacteristic(configuration2Char);
+    sensoGripService.addCharacteristic(dataStreamChar);
     BLE.addService(sensoGripService);
     BLE.advertise();
     DEBUG_PRINTLN("BLE ready");
@@ -208,6 +209,16 @@ void sendBLEData()
         String payload = String(millis()) + "," + String(tipSensor.getValue()) + "," + String(fingerSensor.getValue()) + "," + String((int)mpu.getAngX()) + "\0";
         payload.toCharArray(sendBuffer, 32);
         fastStreamChar.writeValue(sendBuffer);
+
+        dataStream.values[0] = millis() / 100;
+        dataStream.values[1] = tipSensor.getValue();
+        dataStream.values[2] = fingerSensor.getValue();
+        dataStream.values[3] = (int)mpu.getAngX();
+        dataStream.values[4] = batteryLevel.getFilteredValue();
+        dataStream.values[5] = Stats.getMinutesInRange();
+        dataStream.values[6] = Stats.getMinutesInUse();
+        dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
+
         previousBLEMillis += BLEInterval;
     }
 
