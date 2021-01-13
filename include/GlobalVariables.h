@@ -60,7 +60,7 @@ inline Statistics Stats;
 inline RangeAI tipRangeAI(20, 500);
 inline RangeAI fingerRangeAI(20, 500);
 
-inline const int SNZ_PWR = 3;
+inline const int SNZ_PWR = 4;
 inline const int sendInterval = 50;
 inline const int BLEInterval = 100;
 inline const int slowBLEInterval = 1000;
