@@ -32,18 +32,18 @@ void setup()
 {
     // while (!Serial);
     initIO();
-    //saveConfigurationToFlash();
+    // saveConfigurationToFlash();
     readConfigurationFromFlash();
     ledPwr.off();
 }
 
 void loop()
 {
-    timingStart = millis();
+    //timingStart = millis();
     readSensors();
     showLedFeedback();
     sendAndReceiveBLEData();
-    //sendSensorData();
+    sendSensorData();
     updateStatistics();
     sleepToSavePower();
     powerOffFunctionality();
@@ -77,7 +77,7 @@ void readSensors()
     batteryLevel.update();
     mpu.execute();
     if (angleCorrection)
-        tipSensor.setPitch(mpu.getAngX());
+        tipSensor.setPitch(mpu.getAngY());
 }
 
 void sendSensorData()
@@ -85,7 +85,7 @@ void sendSensorData()
     static unsigned long previousSendMillis = 0;
     if (millis() - previousSendMillis >= sendInterval)
     {
-        String payload = String(millis()) + " " + String(tipSensor.getValue()) + " " + String(fingerSensor.getValue()) + " " + String(batteryLevel.getFilteredValue()) + " " + String(mpu.getAngX());
+        String payload = String(millis()) + " " + String(tipSensor.getValue()) + " " + String(fingerSensor.getValue()) + " " + String(batteryLevel.getFilteredValue()) + " " + String(mpu.getAngY());
         Serial.println(payload);
         previousSendMillis += sendInterval;
     }
@@ -194,6 +194,7 @@ void BLEconfig()
     sensoGripService.addCharacteristic(angleCorrectionChar);
     sensoGripService.addCharacteristic(configurationChar);
     sensoGripService.addCharacteristic(configuration2Char);
+    sensoGripService.addCharacteristic(dataStreamChar);
     BLE.addService(sensoGripService);
     BLE.advertise();
     DEBUG_PRINTLN("BLE ready");
@@ -205,9 +206,19 @@ void sendBLEData()
     if (millis() - previousBLEMillis >= BLEInterval)
     {
         char sendBuffer[32];
-        String payload = String(millis()) + "," + String(tipSensor.getValue()) + "," + String(fingerSensor.getValue()) + "," + String((int)mpu.getAngX()) + "\0";
+        String payload = String(millis()) + "," + String(tipSensor.getValue()) + "," + String(fingerSensor.getValue()) + "," + String((int)mpu.getAngY()) + "\0";
         payload.toCharArray(sendBuffer, 32);
         fastStreamChar.writeValue(sendBuffer);
+
+        dataStream.values[0] = millis() / 100;
+        dataStream.values[1] = tipSensor.getValue();
+        dataStream.values[2] = fingerSensor.getValue();
+        dataStream.values[3] = (int)mpu.getAngY();
+        dataStream.values[4] = batteryLevel.getFilteredValue();
+        dataStream.values[5] = Stats.getMinutesInRange();
+        dataStream.values[6] = Stats.getMinutesInUse();
+        dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
+
         previousBLEMillis += BLEInterval;
     }
 
