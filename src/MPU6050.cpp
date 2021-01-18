@@ -35,10 +35,10 @@ static float angle_average(float wa, float a, float wb, float b)
 void MPU6050::initialize()
 {
     wire->begin();
-    this->baseInititalize();
+    this->baseInitialize();
 }
 
-void MPU6050::baseInititalize()
+void MPU6050::baseInitialize()
 {
     filterAccelCoeff = DEFAULT_ACCEL_COEFF;
     filterGyroCoeff = DEFAULT_GYRO_COEFF;
@@ -47,6 +47,7 @@ void MPU6050::baseInititalize()
     this->registerWrite(GYRO_CONFIG, 0x08);
     this->registerWrite(ACCEL_CONFIG, 0x00);
     this->registerWrite(PWR_MGMT_1, 0x01);
+    this->registerWrite(PWR_MGMT_2, 0x80);
     angX = 0;
     angY = 0;
     angZ = 0;

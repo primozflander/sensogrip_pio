@@ -1,7 +1,7 @@
 /*
   Project: SensoGripBLE
   Created: 08.09.2020
-  Updated: 07.01.2021
+  Updated: 18.01.2021
   Author:  Primoz Flander
   Arduino board: Sensogrip NINA-B306
   
@@ -58,9 +58,9 @@ void initIO()
     {
         DEBUG_PRINTLN("starting BLE failed!");
     }
-    mpu.initialize();
     BLEconfig();
     configureSensors();
+    mpu.initialize();
 }
 
 void configureSensors()
@@ -85,7 +85,8 @@ void sendSensorData()
     static unsigned long previousSendMillis = 0;
     if (millis() - previousSendMillis >= sendInterval)
     {
-        String payload = String(millis()) + " " + String(tipSensor.getValue()) + " " + String(fingerSensor.getValue()) + " " + String(batteryLevel.getFilteredValue()) + " " + String(mpu.getAngY());
+        String payload = String(millis()) + " " + String(tipSensor.getValue()) + " " + String(fingerSensor.getValue()) + " " + String(batteryLevel.getFilteredValue()) + " " +
+        String(mpu.getAngY()) + " " + String(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
         Serial.println(payload);
         previousSendMillis += sendInterval;
     }
@@ -206,7 +207,8 @@ void sendBLEData()
     if (millis() - previousBLEMillis >= BLEInterval)
     {
         char sendBuffer[32];
-        String payload = String(millis()) + "," + String(tipSensor.getValue()) + "," + String(fingerSensor.getValue()) + "," + String((int)mpu.getAngY()) + "\0";
+        String payload = String(millis()) + "," + String(tipSensor.getValue()) + "," + String(fingerSensor.getValue()) + "," + 
+        String((int)mpu.getAngY()) + "," + String((int)(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()))) + "\0";
         payload.toCharArray(sendBuffer, 32);
         fastStreamChar.writeValue(sendBuffer);
 
@@ -226,7 +228,8 @@ void sendBLEData()
     if (millis() - previousSlowBLEMillis >= slowBLEInterval)
     {
         char sendBuffer[32];
-        String payload = String(batteryLevel.getFilteredValue()) + "," + String(Stats.getMinutesInRange()) + "," + String(Stats.getMinutesInUse()) + "," + String(tipSensor.getUpperRange() - tipSensor.getRefRange()) + "," + String(fingerSensor.getUpperRange() - fingerSensor.getRefRange()) + "\0";
+        String payload = String(batteryLevel.getFilteredValue()) + "," + String(Stats.getMinutesInRange()) + "," + String(Stats.getMinutesInUse()) + "," + 
+        String(tipSensor.getUpperRange() - tipSensor.getRefRange()) + "," + String(fingerSensor.getUpperRange() - fingerSensor.getRefRange()) + "\0";
         payload.toCharArray(sendBuffer, 32);
         slowStreamChar.writeValue(sendBuffer);
         previousSlowBLEMillis += slowBLEInterval;

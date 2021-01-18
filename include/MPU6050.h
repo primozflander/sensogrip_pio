@@ -50,7 +50,7 @@ private:
     float angGyroX, angGyroY, angGyroZ, angAccX, angAccY;
     float filterAccelCoeff, filterGyroCoeff;
     float angX, angY, angZ;
-    void baseInititalize();
+    void baseInitialize();
 
 public:
     MPU6050(TwoWire &w, int i2cAddress = ADDRESS);
