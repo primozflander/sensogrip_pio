@@ -32,7 +32,7 @@ void setup()
 {
     // while (!Serial);
     initIO();
-    // saveConfigurationToFlash();
+    //saveConfigurationToFlash();
     readConfigurationFromFlash();
     ledPwr.off();
 }
@@ -46,7 +46,7 @@ void loop()
     sendSensorData();
     updateStatistics();
     sleepToSavePower();
-    powerOffFunctionality();
+    // powerOffFunctionality();
     //timingStop = millis();
     //Serial.println(timingStop - timingStart);
 }
@@ -196,6 +196,7 @@ void BLEconfig()
     sensoGripService.addCharacteristic(configurationChar);
     sensoGripService.addCharacteristic(configuration2Char);
     sensoGripService.addCharacteristic(dataStreamChar);
+    sensoGripService.addCharacteristic(configurationStateChar);
     BLE.addService(sensoGripService);
     BLE.advertise();
     DEBUG_PRINTLN("BLE ready");
@@ -216,9 +217,10 @@ void sendBLEData()
         dataStream.values[1] = tipSensor.getValue();
         dataStream.values[2] = fingerSensor.getValue();
         dataStream.values[3] = (int)mpu.getAngY();
-        dataStream.values[4] = batteryLevel.getFilteredValue();
-        dataStream.values[5] = Stats.getMinutesInRange();
-        dataStream.values[6] = Stats.getMinutesInUse();
+        dataStream.values[4] = (int)(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
+        dataStream.values[5] = batteryLevel.getFilteredValue();
+        dataStream.values[6] = Stats.getMinutesInRange();
+        dataStream.values[7] = Stats.getMinutesInUse();
         dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
 
         previousBLEMillis += BLEInterval;
@@ -433,6 +435,23 @@ void updateConfigurationChar()
     payload.toCharArray(sendBuffer, 32);
     configuration2Char.writeValue(sendBuffer);
     DEBUG_PRINTLN("Configuration char updated");
+
+    configurationState.values[0] = tipSensor.getRefValue();
+    configurationState.values[1] = tipSensor.getRefRange();
+    configurationState.values[2] = fingerSensor.getRefValue();
+    configurationState.values[3] = fingerSensor.getRefRange();
+    configurationState.values[4] = positiveFeedback;
+    configurationState.values[5] = ledAssistance;
+    configurationState.values[6] = aiRangeAssistance;
+    configurationState.values[7] = angleCorrection;
+    configurationState.values[8] = tipPressureReleaseDelay;
+    configurationState.values[9] = rgbLed.getLedTurnOnSpeed();
+    configurationState.values[10] = rgbLed.getLedSimpleAssistanceColor();
+    configurationState.values[11] = rgbLed.getLedTipAssistanceColor();
+    configurationState.values[12] = rgbLed.getLedFingerAssistanceColor();
+    configurationState.values[13] = rgbLed.getLedOkColor();
+    configurationState.values[14] = rgbLed.getLedNokColor();
+    configurationStateChar.writeValue(configurationState.bytes, sizeof configurationState.bytes);
 }
 
 void updateStatistics()
@@ -482,8 +501,8 @@ void powerOffFunctionality()
         ledPwr.off();
         BLE.end();
         mpu.setAccWakeUp();
-        nrf_gpio_cfg_sense_input(P1_11, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
-        // nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);  // sensogrip board D2
+        //nrf_gpio_cfg_sense_input(P1_11, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
+        nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);  // sensogrip board D2
         DEBUG_PRINTLN("Power off");
         NRF_POWER->SYSTEMOFF = 1;
     }

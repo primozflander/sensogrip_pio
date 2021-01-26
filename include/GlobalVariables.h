@@ -14,12 +14,22 @@ union data_stream
 {
     struct __attribute__((packed))
     {
-        uint16_t values[7];
+        uint16_t values[8];
     };
-    uint8_t bytes[7 * sizeof(uint16_t)];
+    uint8_t bytes[8 * sizeof(uint16_t)];
+};
+
+union configuration_state
+{
+    struct __attribute__((packed))
+    {
+        uint16_t values[15];
+    };
+    uint8_t bytes[15 * sizeof(uint16_t)];
 };
 
 inline union data_stream dataStream;
+inline union configuration_state configurationState;
 inline BLEService sensoGripService("1111");
 inline BLEIntCharacteristic refTipValueChar("2001", BLEWrite);
 inline BLEIntCharacteristic refTipRangeChar("2002", BLEWrite);
@@ -44,6 +54,7 @@ inline BLEStringCharacteristic slowStreamChar("3001", BLERead | BLENotify, 32);
 inline BLEStringCharacteristic configurationChar("3002", BLERead, 32);
 inline BLEStringCharacteristic configuration2Char("3003", BLERead, 32);
 inline BLECharacteristic dataStreamChar("3004", BLERead | BLENotify, sizeof dataStream.bytes );
+inline BLECharacteristic configurationStateChar("3005", BLERead | BLENotify, sizeof configurationState.bytes );
 
 inline MPU6050 mpu(Wire);
 inline Sensor tipSensor(A0, 0, 100, 70);

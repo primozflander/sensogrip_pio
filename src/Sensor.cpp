@@ -76,7 +76,7 @@ int Sensor::getFsrValue()
     // return output = (int)(!inverse) ? output : -output;
     // sensogrip 3V, 2k
     long input = map(analogRead(pin), 0, 1023, 1, 2999);
-    long output = ((input * 20) / (2999 - input) - offset) * outputCorrectionFactor;
+    long output = ((input * 50) / (2999 - input) - offset) * outputCorrectionFactor;
     return output = (int)(!inverse) ? output : -output;
 }
 
