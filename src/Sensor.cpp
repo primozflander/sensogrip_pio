@@ -95,7 +95,7 @@ int Sensor::getBatteryValue()
     // return output = (int)(!inverse) ? output : -output;
     // sensogrip 100% -> 4.1V , 0% -> 3.2V
     analogReference(AR_INTERNAL2V4);
-    int output = map(analogRead(pin), 680, 880, 0, 100);
+    int output = map(analogRead(pin), 680, 870, 0, 100);
     analogReference(AR_VDD);
     output = constrain(output, 0, 100);
     return output = (int)(!inverse) ? output : -output;

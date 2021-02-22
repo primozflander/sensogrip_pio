@@ -14,9 +14,9 @@ union data_stream
 {
     struct __attribute__((packed))
     {
-        uint16_t values[8];
+        uint16_t values[12];
     };
-    uint8_t bytes[8 * sizeof(uint16_t)];
+    uint8_t bytes[12 * sizeof(uint16_t)];
 };
 
 union configuration_state
@@ -59,7 +59,7 @@ inline BLECharacteristic configurationStateChar("3005", BLERead | BLENotify, siz
 inline MPU6050 mpu(Wire);
 inline Sensor tipSensor(A0, 0, 100, 70);
 inline Sensor fingerSensor(A1, 1, 500, 350);
-inline Sensor batteryLevel(A2, 2, 0, 100, 1000);
+inline Sensor batteryLevel(A2, 2, 0, 100);
 inline RGBLed rgbLed(9, 10, 11, false);
 inline Led onboardLedR(22, true);
 inline Led onboardLedG(23, true);
@@ -72,12 +72,12 @@ inline RangeAI tipRangeAI(20, 500);
 inline RangeAI fingerRangeAI(20, 500);
 
 inline const int SNZ_PWR = 4;
-inline const int sendInterval = 50;
-inline const int BLEInterval = 100;
-inline const int slowBLEInterval = 1000;
-inline const int sleepTimer = 300;
-inline const int ledFeedbackInterval = 10;
-inline const int statsSaveInterval = 60000;
+inline const int SERIAL_SEND_INTERVAL = 50;
+inline const int BLE_SEND_INTERVAL = 100;
+inline const int SLOW_BLE_SEND_INTERVAL = 1000;
+inline const int SLEEP_TIMER = 300;
+inline const int LED_FEEDBACK_INTERVAL = 10;
+inline const int STATS_SAVE_INTERVAL = 60000;
 inline long timingStart = 0;
 inline long timingStop = 0;
 inline bool positiveFeedback = true;
