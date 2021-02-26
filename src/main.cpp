@@ -4,7 +4,10 @@
 #include "FlashBLE.h"
 #include "Led.h"
 #include "RGBLed.h"
-#include "Sensor.h"
+//#include "Sensor.h"
+#include "TipSensor.h"
+#include "FingerSensor.h"
+#include "BatterySensor.h"
 #include "Statistics.h"
 #include "RangeAI.h"
 #include "DebugUtils.h"
@@ -29,7 +32,7 @@ void loop()
     //sendSensorData();
     updateStatistics();
     sleepToSavePower();
-    //powerOffFunctionality();
+    powerOffFunctionality();
     //timingStop = millis();
     //Serial.println(timingStop - timingStart);
 }
@@ -180,6 +183,7 @@ void BLEconfig()
     sensoGripService.addCharacteristic(configuration2Char);
     sensoGripService.addCharacteristic(dataStreamChar);
     sensoGripService.addCharacteristic(configurationStateChar);
+    sensoGripService.addCharacteristic(testChar);
     BLE.addService(sensoGripService);
     BLE.advertise();
     DEBUG_PRINTLN("BLE ready");
@@ -204,12 +208,11 @@ void sendBLEData()
         dataStream.values[5] = batteryLevel.getFilteredValue();
         dataStream.values[6] = Stats.getMinutesInRange();
         dataStream.values[7] = Stats.getMinutesInUse();
-        dataStream.values[8] = tipSensor.getRefValue() + tipSensor.getRefRange();
-        dataStream.values[9] = tipSensor.getRefValue() - tipSensor.getRefRange();
-        dataStream.values[10] = fingerSensor.getRefValue() + fingerSensor.getRefRange();
-        dataStream.values[11] = fingerSensor.getRefRange() - fingerSensor.getRefRange();
+        dataStream.values[8] = tipSensor.getUpperRange();
+        dataStream.values[9] = tipSensor.getLowerRange();
+        dataStream.values[10] = fingerSensor.getUpperRange();
+        dataStream.values[11] = fingerSensor.getLowerRange();
         dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
-
         previousBLEMillis += BLE_SEND_INTERVAL;
     }
 
@@ -355,6 +358,18 @@ void getBLEData()
         updateConfigurationChar();
         DEBUG_PRINTLN("angleCorrection: " + String(angleCorrectionChar.value()));
     }
+    if (testChar.written())
+    {
+        testChar.readValue(test.bytes, sizeof test.bytes);
+        for ( int i = 0; i < 11; i++ )
+        {
+          Serial.print( "Sensor (" );
+          Serial.print( i );
+          Serial.print( "): " );
+          Serial.println(test.values[i] );
+        }
+        DEBUG_PRINTLN("angleCorrection: " + String(angleCorrectionChar.value()));
+    }
 }
 
 void saveConfigurationToFlash()
@@ -441,6 +456,23 @@ void updateConfigurationChar()
     configurationState.values[13] = rgbLed.getLedOkColor();
     configurationState.values[14] = rgbLed.getLedNokColor();
     configurationStateChar.writeValue(configurationState.bytes, sizeof configurationState.bytes);
+
+    test.values[0] = tipSensor.getRefValue() + tipSensor.getRefRange();
+    test.values[1] = tipSensor.getRefValue() - tipSensor.getRefRange();
+    test.values[2] = fingerSensor.getRefValue() + fingerSensor.getRefRange();
+    test.values[3] = fingerSensor.getRefValue() - fingerSensor.getRefRange();
+    test.values[4] = positiveFeedback;
+    test.values[5] = ledAssistance;
+    test.values[6] = aiRangeAssistance;
+    test.values[7] = angleCorrection;
+    test.values[8] = tipPressureReleaseDelay;
+    test.values[9] = rgbLed.getLedTurnOnSpeed();
+    test.values[10] = rgbLed.getLedSimpleAssistanceColor();
+    test.values[11] = rgbLed.getLedTipAssistanceColor();
+    test.values[12] = rgbLed.getLedFingerAssistanceColor();
+    test.values[13] = rgbLed.getLedOkColor();
+    test.values[14] = rgbLed.getLedNokColor();
+    testChar.writeValue(test.bytes, sizeof test.bytes);
 }
 
 void updateStatistics()
@@ -473,7 +505,7 @@ void powerOffFunctionality()
     static unsigned long previousSleepMillis = 0;
     if (millis() - previousSleepMillis >= 1000)
     {
-        if (fingerSensor.getValue() < 15)
+        if (tipSensor.getValue() < 15)
             secondsToSleepCounter++;
         else
             secondsToSleepCounter = 0;

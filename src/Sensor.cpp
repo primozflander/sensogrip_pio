@@ -22,10 +22,9 @@ float Sensor::calculateFilteredValue(int input)
     return filteredValue;
 }
 
-Sensor::Sensor(int pin, int sensorType, int referenceValue, int referenceRange, unsigned long updateInterval)
+Sensor::Sensor(int pin, int referenceValue, int referenceRange, unsigned long updateInterval)
 {
     this->pin = pin;
-    this->sensorType = sensorType;
     this->referenceValue = referenceValue;
     this->referenceRange = referenceRange;
     this->updateInterval = updateInterval;
@@ -49,18 +48,7 @@ void Sensor::calibrate()
     offset = 0;
     for (int i = 0; i <= 1000; i++)
     {
-        switch (sensorType)
-        {
-        case 1:
-            input = getFsrValue();
-            break;
-        case 2:
-            input = getBatteryValue();
-            break;
-        default:
-            input = getSensorValue();
-            break;
-        }
+        input = getSensorValue();
         if (input > sensorMax)
             sensorMax = input;
         if (input < sensorMin)
@@ -69,61 +57,17 @@ void Sensor::calibrate()
     offset = (sensorMax + sensorMin) / 2;
 }
 
-int Sensor::getFsrValue()
-{
-    // long input = map(analogRead(pin), 0, 1023, 1, 3299);
-    // long output = ((input * 100) / (3299 - input) - offset);
-    // return output = (int)(!inverse) ? output : -output;
-    // sensogrip 3V, 2k
-    long input = map(analogRead(pin), 0, 1023, 1, 2999);
-    long output = ((input * 50) / (2999 - input) - offset) * outputCorrectionFactor;
-    return output = (int)(!inverse) ? output : -output;
-}
-
 int Sensor::getSensorValue()
 {
     int output = (analogRead(pin) - offset) * outputCorrectionFactor;
     return output = (int)(!inverse) ? output : -output;
 }
 
-int Sensor::getBatteryValue()
-{   
-    // int output = map(analogRead(pin), 465, 620, 0, 100);
-    // // AR_INTERNAL2V4: 2.4 V reference (internal 0.6 V reference with 4x gain)
-    // // int output = map(analogRead(pin), 639, 916, 0, 100);
-    // output = constrain(output, 0, 100);
-    // return output = (int)(!inverse) ? output : -output;
-    // sensogrip 100% -> 4.1V , 0% -> 3.2V
-    analogReference(AR_INTERNAL2V4);
-    int output = map(analogRead(pin), 680, 870, 0, 100);
-    analogReference(AR_VDD);
-    output = constrain(output, 0, 100);
-    return output = (int)(!inverse) ? output : -output;
-}
-
-int Sensor::getPitchCorrectedValue(int pitch)
-{
-    float output = filteredValue / sin(pitch * PI / 180);
-    return (int)output;
-}
-
 void Sensor::update()
 {
     if (millis() - previousMillis >= updateInterval)
     {
-        int inputValue = 0;
-        switch (sensorType)
-        {
-        case 1:
-            inputValue = getFsrValue();
-            break;
-        case 2:
-            inputValue = getBatteryValue();
-            break;
-        default:
-            inputValue = getSensorValue();
-            break;
-        }
+        inputValue = getSensorValue();
         filteredValue = calculateFilteredValue(inputValue);
         average = calculateMovingAverage(inputValue);
         previousMillis += updateInterval;
@@ -158,7 +102,7 @@ int Sensor::getMedian()
 {
     int swapper;
     int analogValues[numAvgReadings];
-    std::copy(std::begin(readings),std::end(readings),std::begin(analogValues));
+    std::copy(std::begin(readings), std::end(readings), std::begin(analogValues));
     for (int out = 0; out < numAvgReadings; out++)
     {
         for (int in = out; in < (numAvgReadings - 1); in++)
@@ -176,8 +120,7 @@ int Sensor::getMedian()
 
 int Sensor::getValue()
 {
-    float output = filteredValue / sin(pitch * PI / 180);
-    return output = (int)max(output, 0);
+    return (int)max(inputValue,0);
 }
 
 int Sensor::getFilteredValue()
@@ -225,11 +168,6 @@ void Sensor::setFilterPar(float par)
     filterPar = par;
 }
 
-void Sensor::setSensorType(int type)
-{
-    sensorType = type;
-}
-
 void Sensor::setUpdateInterval(int intervalMs)
 {
     updateInterval = intervalMs;
@@ -260,12 +198,6 @@ void Sensor::setUpperRange(int range)
 void Sensor::setLowerRange(int range)
 {
     lowerRange = range;
-}
-
-void Sensor::setPitch(float angle)
-{
-    pitch = (angle < 90) ? angle : (180 - angle);
-    pitch = constrain(pitch, 30.0, 89.9);
 }
 
 void Sensor::setOffset(int sensorOffset)

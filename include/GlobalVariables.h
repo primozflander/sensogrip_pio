@@ -6,7 +6,9 @@
 #include "FlashBLE.h"
 #include "Led.h"
 #include "RGBLed.h"
-#include "Sensor.h"
+#include "TipSensor.h"
+#include "FingerSensor.h"
+#include "BatterySensor.h"
 #include "Statistics.h"
 #include "RangeAI.h"
 
@@ -28,8 +30,18 @@ union configuration_state
     uint8_t bytes[15 * sizeof(uint16_t)];
 };
 
+union test
+{
+    struct __attribute__((packed))
+    {
+        uint16_t values[15];
+    };
+    uint8_t bytes[15 * sizeof(uint16_t)];
+};
+
 inline union data_stream dataStream;
 inline union configuration_state configurationState;
+inline union test test;
 inline BLEService sensoGripService("1111");
 inline BLEIntCharacteristic refTipValueChar("2001", BLEWrite);
 inline BLEIntCharacteristic refTipRangeChar("2002", BLEWrite);
@@ -55,11 +67,12 @@ inline BLEStringCharacteristic configurationChar("3002", BLERead, 32);
 inline BLEStringCharacteristic configuration2Char("3003", BLERead, 32);
 inline BLECharacteristic dataStreamChar("3004", BLERead | BLENotify, sizeof dataStream.bytes );
 inline BLECharacteristic configurationStateChar("3005", BLERead | BLENotify, sizeof configurationState.bytes );
+inline BLECharacteristic testChar("3006", BLERead | BLEWrite, sizeof test.bytes );
 
 inline MPU6050 mpu(Wire);
-inline Sensor tipSensor(A0, 0, 100, 70);
-inline Sensor fingerSensor(A1, 1, 500, 350);
-inline Sensor batteryLevel(A2, 2, 0, 100);
+inline TipSensor tipSensor(A0, 100, 70);
+inline FingerSensor fingerSensor(A1, 100, 70);
+inline BatterySensor batteryLevel(A2);
 inline RGBLed rgbLed(9, 10, 11, false);
 inline Led onboardLedR(22, true);
 inline Led onboardLedG(23, true);

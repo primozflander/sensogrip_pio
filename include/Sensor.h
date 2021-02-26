@@ -10,12 +10,8 @@ class Sensor
 {
 private:
 #define numAvgReadings 100
-    bool inverse = false;
-    int pin;
-    int sensorType;
-    int offset = 0;
-    // int inputValue = 0;
     int readings[numAvgReadings];
+    int inputValue = 0;
     int readIndex = 0;
     int referenceValue;
     int referenceRange;
@@ -23,28 +19,29 @@ private:
     int lowerRange;
     long average = 0;
     long total = 0;
-    float pitch = 90;
     float filterPar = 0.9;
-    float filteredValue = 0;
-    float outputCorrectionFactor = 1;
-    unsigned long updateInterval = 10;
+    unsigned long updateInterval;
     unsigned long previousMillis = 0;
     long calculateMovingAverage(int input);
     float calculateFilteredValue(int input);
 
+protected:
+    bool inverse = false;
+    int pin;
+    int offset = 0;
+    float filteredValue = 0;
+    float outputCorrectionFactor = 1;
+
 public:
-    Sensor(int pin, int sensorType = 0, int referenceValue = 500, int referenceRange = 250, unsigned long updateInterval = 10);
+    Sensor(int pin, int referenceValue = 100, int referenceRange = 50, unsigned long updateInterval = 10);
     void init();
     void calibrate();
-    int getFsrValue();
-    int getSensorValue();
-    int getBatteryValue();
-    int getPitchCorrectedValue(int pitch);
+    virtual int getSensorValue();
     void update();
     bool isInRange();
     bool isUnderRange();
     bool isOverRange();
-    int getValue();
+    virtual int getValue();
     int getFilteredValue();
     int getAverage();
     int getMedian();
@@ -55,15 +52,12 @@ public:
     int getOffset();
     float getOutputCorrectionFactor();
     void setFilterPar(float par);
-    void setSensorType(int type);
     void setUpdateInterval(int intervalMs);
     void setInverse(bool inverseOutput);
     void setRefValue(int reference);
     void setRefRange(int range);
     void setUpperRange(int range);
     void setLowerRange(int range);
-    void setPitch(float angle);
     void setOffset(int sensorOffset);
     void setOutputCorrectionFactor(float factor);
 };
-
