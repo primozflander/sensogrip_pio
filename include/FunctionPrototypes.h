@@ -17,3 +17,4 @@ void updateStatistics();
 void calculateOptimalRange();
 void powerOffFunctionality();
 void sleepToSavePower();
+void isBatteryOk();

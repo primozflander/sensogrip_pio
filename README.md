@@ -81,12 +81,11 @@ into the “Additional Board Manager URLs”.
 4. Select board `SensoGrip NINA B306` and upload the program.
 
 
+
 <!-- USAGE EXAMPLES -->
-## Usage
+## Documentation
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](/documentation)_
+_For documentation, please refer to the [Documentation](/documentation)_
 
 
 
@@ -109,3 +108,4 @@ Project Link: [SensoGrip](https://github.com/primozflander/senso-grip)
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 * [Gernot Korak](https://www.fh-campuswien.ac.at/forschung/forschende-von-a-z/personendetails/gernot-korak.html)
+* [Sebastian Geyer](https://www.fh-campuswien.ac.at/forschung/forschende-von-a-z/personendetails/sebastian-geyer.html)
