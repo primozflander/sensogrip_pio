@@ -4,7 +4,6 @@
 #include "FlashBLE.h"
 #include "Led.h"
 #include "RGBLed.h"
-//#include "Sensor.h"
 #include "TipSensor.h"
 #include "FingerSensor.h"
 #include "BatterySensor.h"
@@ -15,7 +14,7 @@
 #include "GlobalVariables.h"
 
 void setup()
-{   
+{
     // while (!Serial);
     initIO();
     //saveConfigurationToFlash();
@@ -43,8 +42,7 @@ void isBatteryOk()
     {
         mpu.setAccWakeUp();
         // nrf_gpio_cfg_sense_input(P1_11, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
-        nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);  // sensogrip board D2
-        DEBUG_PRINTLN("Battery too low");
+        nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW); // sensogrip board D2
         NRF_POWER->SYSTEMOFF = 1;
     }
 }
@@ -60,14 +58,15 @@ void initIO()
     }
     BLEconfig();
     configureSensors();
-    
 }
 
 void configureSensors()
 {
+    // tipSensor.setOutputCorrectionFactor(1);
     pinMode(SNZ_PWR, OUTPUT);
     digitalWrite(SNZ_PWR, HIGH);
     rgbLed.ledTest();
+    
 }
 
 void readSensors()
@@ -86,7 +85,7 @@ void sendSensorData()
     if (millis() - previousSendMillis >= SERIAL_SEND_INTERVAL)
     {
         String payload = String(millis()) + " " + String(tipSensor.getValue()) + " " + String(fingerSensor.getValue()) + " " + String(batteryLevel.getFilteredValue()) + " " +
-        String(mpu.getAngY()) + " " + String(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
+                         String(mpu.getAngY()) + " " + String(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
         Serial.println(payload);
         previousSendMillis += SERIAL_SEND_INTERVAL;
     }
@@ -173,28 +172,9 @@ void BLEconfig()
 {
     BLE.setLocalName("SensoGrip");
     BLE.setAdvertisedService(sensoGripService);
-    // sensoGripService.addCharacteristic(refTipValueChar);
-    // sensoGripService.addCharacteristic(refTipRangeChar);
-    // sensoGripService.addCharacteristic(refFingerValueChar);
-    // sensoGripService.addCharacteristic(refFingerRangeChar);
-    // sensoGripService.addCharacteristic(feedbackChar);
-    // sensoGripService.addCharacteristic(ledAssistanceTypeChar);
-    // sensoGripService.addCharacteristic(tipPressureReleaseDelayChar);
-    // sensoGripService.addCharacteristic(ledTurnOnSpeedChar);
-    // sensoGripService.addCharacteristic(ledTipAssistanceColorChar);
-    // sensoGripService.addCharacteristic(ledFingerAssistanceColorChar);
-    // sensoGripService.addCharacteristic(ledSimpleAssistanceColorChar);
-    // sensoGripService.addCharacteristic(ledOkColorChar);
-    // sensoGripService.addCharacteristic(ledNokColorChar);
-    // sensoGripService.addCharacteristic(fastStreamChar);
-    // sensoGripService.addCharacteristic(slowStreamChar);
     sensoGripService.addCharacteristic(minutesPassedInUseChar);
     sensoGripService.addCharacteristic(minutesPassedInRangeChar);
     sensoGripService.addCharacteristic(calibrateChar);
-    // sensoGripService.addCharacteristic(aiChar);
-    // sensoGripService.addCharacteristic(angleCorrectionChar);
-    // sensoGripService.addCharacteristic(configurationChar);
-    // sensoGripService.addCharacteristic(configuration2Char);
     sensoGripService.addCharacteristic(dataStreamChar);
     sensoGripService.addCharacteristic(configurationStateChar);
     BLE.addService(sensoGripService);
@@ -207,19 +187,27 @@ void sendBLEData()
     static unsigned long previousBLEMillis = 0;
     if (millis() - previousBLEMillis >= BLE_SEND_INTERVAL)
     {
-        // char sendBuffer[32];
-        // String payload = String(millis()) + "," + String(tipSensor.getValue()) + "," + String(fingerSensor.getValue()) + "," + 
-        // String((int)mpu.getAngY()) + "," + String((int)(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()))) + "\0";
-        // payload.toCharArray(sendBuffer, 32);
-        // fastStreamChar.writeValue(sendBuffer);
+        // dataStream.values[0] = millis() / 100;
+        // dataStream.values[1] = tipSensor.getValue();
+        // dataStream.values[2] = fingerSensor.getValue();
+        // dataStream.values[3] = (int)mpu.getAngY();
+        // dataStream.values[4] = (int)(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
+        // dataStream.values[5] = batteryLevel.getFilteredValue();
+        // dataStream.values[6] = Stats.getMinutesInRange();
+        // dataStream.values[7] = Stats.getMinutesInUse();
+        // dataStream.values[8] = tipSensor.getUpperRange();
+        // dataStream.values[9] = tipSensor.getLowerRange();
+        // dataStream.values[10] = fingerSensor.getUpperRange();
+        // dataStream.values[11] = fingerSensor.getLowerRange();
+        // dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
 
         dataStream.values[0] = millis() / 100;
         dataStream.values[1] = tipSensor.getValue();
         dataStream.values[2] = fingerSensor.getValue();
-        dataStream.values[3] = (int)mpu.getAngY();
-        dataStream.values[4] = (int)(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
-        dataStream.values[5] = batteryLevel.getFilteredValue();
-        dataStream.values[6] = Stats.getMinutesInRange();
+        dataStream.values[3] = tipSensor.getRawValue();
+        dataStream.values[4] = fingerSensor.getRawValue();
+        dataStream.values[5] = (int)mpu.getAngY();
+        dataStream.values[6] = (int)mpu.getAngY();
         dataStream.values[7] = Stats.getMinutesInUse();
         dataStream.values[8] = tipSensor.getUpperRange();
         dataStream.values[9] = tipSensor.getLowerRange();
@@ -228,167 +216,33 @@ void sendBLEData()
         dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
         previousBLEMillis += BLE_SEND_INTERVAL;
     }
-
-    // static unsigned long previousSlowBLEMillis = 0;
-    // if (millis() - previousSlowBLEMillis >= SLOW_BLE_SEND_INTERVAL)
-    // {
-    //     char sendBuffer[32];
-    //     String payload = String(batteryLevel.getFilteredValue()) + "," + String(Stats.getMinutesInRange()) + "," + String(Stats.getMinutesInUse()) + "," + 
-    //     String(tipSensor.getUpperRange() - tipSensor.getRefRange()) + "," + String(fingerSensor.getUpperRange() - fingerSensor.getRefRange()) + "\0";
-    //     payload.toCharArray(sendBuffer, 32);
-    //     slowStreamChar.writeValue(sendBuffer);
-    //     previousSlowBLEMillis += SLOW_BLE_SEND_INTERVAL;
-    // }
 }
 
 void getBLEData()
 {
-    // if (feedbackChar.written())
-    // {
-    //     positiveFeedback = constrain(feedbackChar.value(), 0, 1);
-    //     Flash.put("positiveFeedback", String(positiveFeedback));
-    //     rgbLed.off();
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("feedback written: " + String(feedbackChar.value()));
-    // }
-    // if (aiChar.written())
-    // {
-    //     aiRangeAssistance = constrain(aiChar.value(), 0, 1);
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("ai written: " + String(aiChar.value()));
-    //     if(aiRangeAssistance != 1)
-    //     {
-    //         tipSensor.setUpperRange(tipSensor.getRefValue() + tipSensor.getRefRange());
-    //         tipSensor.setLowerRange(tipSensor.getRefValue() - tipSensor.getRefRange());
-    //         fingerSensor.setUpperRange(fingerSensor.getRefValue() + fingerSensor.getRefRange());
-    //         fingerSensor.setLowerRange(fingerSensor.getRefValue() - fingerSensor.getRefRange());
-    //         DEBUG_PRINTLN("tip and finger reseted: " + String(tipSensor.getUpperRange()) + " " + String(tipSensor.getLowerRange()) + " " + String(fingerSensor.getUpperRange()) + " " + String(fingerSensor.getLowerRange()));
-    //     }
-    // }
-    // if (calibrateChar.written())
-    // {
-    //     tipSensor.calibrate();
-    //     fingerSensor.calibrate();
-    //     Flash.put("tipSensorOffset", String(tipSensor.getOffset()));
-    //     Flash.put("fingerSensorOffset", String(fingerSensor.getOffset()));
-    //     DEBUG_PRINTLN("calibration written: " + String(tipSensor.getOffset()) + "," + String(fingerSensor.getOffset()));
-    // }
-    // if (ledAssistanceTypeChar.written())
-    // {
-    //     ledAssistance = constrain(ledAssistanceTypeChar.value(), 0, 2);
-    //     Flash.put("ledAssistance", String(ledAssistance));
-    //     rgbLed.off();
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("ledAssistance written: " + String(ledAssistanceTypeChar.value()));
-    // }
-    // if (refTipValueChar.written())
-    // {
-    //     tipSensor.setRefValue(constrain(refTipValueChar.value(), 0, 5000));
-    //     Flash.put("refTipValue", String(tipSensor.getRefValue()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("refTipValue written: " + String(refTipValueChar.value()));
-    // }
-    // if (refTipRangeChar.written())
-    // {
-    //     tipSensor.setRefRange(constrain(refTipRangeChar.value(), 0, 5000));
-    //     Flash.put("refTipRange", String(tipSensor.getRefRange()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("refTipRange written: " + String(refTipRangeChar.value()));
-    // }
-    // if (refFingerValueChar.written())
-    // {
-    //     fingerSensor.setRefValue(constrain(refFingerValueChar.value(), 0, 5000));
-    //     Flash.put("refFingerValue", String(fingerSensor.getRefValue()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("refFingerValue written: " + String(refFingerValueChar.value()));
-    // }
-    // if (refFingerRangeChar.written())
-    // {
-    //     fingerSensor.setRefRange(constrain(refFingerRangeChar.value(), 0, 5000));
-    //     Flash.put("refFingerRange", String(fingerSensor.getRefRange()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("refFingerRange written: " + String(refFingerRangeChar.value()));
-    // }
-    // if (tipPressureReleaseDelayChar.written())
-    // {
-    //     tipPressureReleaseDelay = constrain(tipPressureReleaseDelayChar.value(), 0, 500);
-    //     Flash.put("tipPressureReleaseDelay", String(tipPressureReleaseDelay));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("tipPressureReleaseDelay written: " + String(tipPressureReleaseDelayChar.value()));
-    // }
-    // if (ledTurnOnSpeedChar.written())
-    // {
-    //     rgbLed.setLedTurnOnSpeed(constrain(ledTurnOnSpeedChar.value(), 0, 500));
-    //     Flash.put("ledTurnOnSpeed", String(rgbLed.getLedTurnOnSpeed()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("ledTurnOnSpeed written: " + String(ledTurnOnSpeedChar.value()));
-    // }
-    // if (ledTipAssistanceColorChar.written())
-    // {
-    //     rgbLed.setLedTipAssistanceColor(constrain(ledTipAssistanceColorChar.value(), 0, 359));
-    //     Flash.put("ledTipAssistanceColor", String(rgbLed.getLedTipAssistanceColor()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("ledTipAssistanceColor written: " + String(ledTipAssistanceColorChar.value()));
-    // }
-    // if (ledFingerAssistanceColorChar.written())
-    // {
-    //     rgbLed.setLedFingerAssistanceColor(constrain(ledFingerAssistanceColorChar.value(), 0, 359));
-    //     Flash.put("ledFingerAssistanceColor", String(rgbLed.getLedFingerAssistanceColor()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("ledFingerAssistanceColor written: " + String(ledFingerAssistanceColorChar.value()));
-    // }
-    // if (ledSimpleAssistanceColorChar.written())
-    // {
-    //     rgbLed.setLedSimpleAssistanceColor(constrain(ledSimpleAssistanceColorChar.value(), 0, 359));
-    //     Flash.put("ledSimpleAssistanceColor", String(rgbLed.getLedSimpleAssistanceColor()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("ledSimpleAssistanceColor written: " + String(ledSimpleAssistanceColorChar.value()));
-    // }
-    // if (ledOkColorChar.written())
-    // {
-    //     rgbLed.setLedOkColor(constrain(ledOkColorChar.value(), 0, 359));
-    //     Flash.put("ledOkColor", String(rgbLed.getLedOkColor()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("ledOkColor written: " + String(ledOkColorChar.value()));
-    // }
-    // if (ledNokColorChar.written())
-    // {
-    //     rgbLed.setLedNokColor(constrain(ledNokColorChar.value(), 0, 359));
-    //     Flash.put("ledNokColor", String(rgbLed.getLedNokColor()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("ledNokColor written: " + String(ledNokColorChar.value()));
-    // }
-    // if (minutesPassedInUseChar.written())
-    // {
-    //     //Stats.setMinutesInUse(minutesPassedInUseChar.value());
-    //     Stats.setMinutesInUse(0);
-    //     Flash.put("minutesInUse", String(Stats.getMinutesInUse()));
-    //     DEBUG_PRINTLN("minutesInUse reset");
-    // }
-    // if (minutesPassedInRangeChar.written())
-    // {
-    //     //Stats.setMinutesInRange(minutesPassedInRangeChar.value());
-    //     Stats.setMinutesInRange(0);
-    //     Flash.put("minutesInRange", String(Stats.getMinutesInRange()));
-    //     DEBUG_PRINTLN("minutesInRange reset");
-    // }
-    // if (angleCorrectionChar.written())
-    // {
-    //     angleCorrection = constrain(angleCorrectionChar.value(), 0, 1);
-    //     Flash.put("angleCorrection", String(angleCorrectionChar.value()));
-    //     updateConfigurationChar();
-    //     DEBUG_PRINTLN("angleCorrection: " + String(angleCorrectionChar.value()));
-    // }
+    if (calibrateChar.written())
+    {
+        tipSensor.calibrate();
+        fingerSensor.calibrate();
+        Flash.put("tipSensorOffset", String(tipSensor.getOffset()));
+        Flash.put("fingerSensorOffset", String(fingerSensor.getOffset()));
+        DEBUG_PRINTLN("calibration written: " + String(tipSensor.getOffset()) + "," + String(fingerSensor.getOffset()));
+    }
+    if (minutesPassedInUseChar.written())
+    {
+        Stats.setMinutesInUse(0);
+        Flash.put("minutesInUse", String(Stats.getMinutesInUse()));
+        DEBUG_PRINTLN("minutesInUse reset");
+    }
+    if (minutesPassedInRangeChar.written())
+    {
+        Stats.setMinutesInRange(0);
+        Flash.put("minutesInRange", String(Stats.getMinutesInRange()));
+        DEBUG_PRINTLN("minutesInRange reset");
+    }
     if (configurationStateChar.written())
     {
         configurationStateChar.readValue(configurationState.bytes, sizeof configurationState.bytes);
-        // for ( int i = 0; i < 15; i++ )
-        // {
-        //   Serial.print( "Sensor (" );
-        //   Serial.print( i );
-        //   Serial.print( "): " );
-        //   Serial.println(configurationState.values[i] );
-        // }
         tipSensor.setRefValue(constrain((configurationState.values[0] + configurationState.values[1]) / 2, 0, 5000));
         Flash.put("refTipValue", String(tipSensor.getRefValue()));
         DEBUG_PRINTLN("refTipValue written: " + String((configurationState.values[0] + configurationState.values[1]) / 2));
@@ -411,7 +265,7 @@ void getBLEData()
         DEBUG_PRINTLN("ledAssistance written: " + String(configurationState.values[5]));
         aiRangeAssistance = constrain(configurationState.values[6], 0, 1);
         DEBUG_PRINTLN("ai written: " + String(configurationState.values[6]));
-        if(aiRangeAssistance != 1)
+        if (aiRangeAssistance != 1)
         {
             tipSensor.setUpperRange(tipSensor.getRefValue() + tipSensor.getRefRange());
             tipSensor.setLowerRange(tipSensor.getRefValue() - tipSensor.getRefRange());
@@ -505,15 +359,6 @@ void readConfigurationFromFlash()
 
 void updateConfigurationChar()
 {
-    // char sendBuffer[32];
-    // String payload = String(tipSensor.getRefValue()) + "," + String(tipSensor.getRefRange()) + "," + String(fingerSensor.getRefValue()) + "," + String(fingerSensor.getRefRange()) + "," + String(positiveFeedback) + "," + String(ledAssistance) + "," + String(aiRangeAssistance) + "\0";
-    // payload.toCharArray(sendBuffer, 32);
-    // configurationChar.writeValue(sendBuffer);
-    // //sendBuffer[32];
-    // payload = String(angleCorrection) + "," + String(tipPressureReleaseDelay) + "," + String(rgbLed.getLedTurnOnSpeed()) + "," + String(rgbLed.getLedSimpleAssistanceColor()) + "," + String(rgbLed.getLedTipAssistanceColor()) + "," + String(rgbLed.getLedFingerAssistanceColor()) + "," + String(rgbLed.getLedOkColor()) + "," + String(rgbLed.getLedNokColor()) + "\0";
-    // payload.toCharArray(sendBuffer, 32);
-    // configuration2Char.writeValue(sendBuffer);
-    // DEBUG_PRINTLN("Configuration char updated");
     configurationState.values[0] = tipSensor.getRefValue() + tipSensor.getRefRange();
     configurationState.values[1] = tipSensor.getRefValue() - tipSensor.getRefRange();
     configurationState.values[2] = fingerSensor.getRefValue() + fingerSensor.getRefRange();
@@ -580,7 +425,7 @@ void powerOffFunctionality()
         BLE.end();
         mpu.setAccWakeUp();
         //nrf_gpio_cfg_sense_input(P1_11, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
-        nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);  // sensogrip board D2
+        nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW); // sensogrip board D2
         DEBUG_PRINTLN("Power off");
         NRF_POWER->SYSTEMOFF = 1;
     }

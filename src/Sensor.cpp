@@ -48,7 +48,7 @@ void Sensor::calibrate()
     offset = 0;
     for (int i = 0; i <= 1000; i++)
     {
-        input = getSensorValue();
+        input = getRawValue();
         if (input > sensorMax)
             sensorMax = input;
         if (input < sensorMin)
@@ -61,6 +61,11 @@ int Sensor::getSensorValue()
 {
     int output = (analogRead(pin) - offset) * outputCorrectionFactor;
     return output = (int)(!inverse) ? output : -output;
+}
+
+int Sensor::getRawValue()
+{
+    return analogRead(pin);
 }
 
 void Sensor::update()

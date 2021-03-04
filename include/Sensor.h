@@ -51,6 +51,7 @@ public:
     int getLowerRange();
     int getOffset();
     float getOutputCorrectionFactor();
+    int getRawValue();
     void setFilterPar(float par);
     void setUpdateInterval(int intervalMs);
     void setInverse(bool inverseOutput);
