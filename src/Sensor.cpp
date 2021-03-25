@@ -1,9 +1,3 @@
-/*
-  Sensor.cpp - Library for easy use of analog sensors.
-  Created by Primoz Flander 06.11.2020.
-  Released into the public domain.
-*/
-
 #include "Sensor.h"
 long Sensor::calculateMovingAverage(int input)
 {

@@ -1,9 +1,3 @@
-/*
-  FingerSensor.h - Library for easy use of finger sensors.
-  Created by Primoz Flander 26.02.2021.
-  Released into the public domain.
-*/
-
 #pragma once
 #include <Arduino.h>
 #include "Sensor.h"

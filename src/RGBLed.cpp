@@ -1,9 +1,3 @@
-/*
-  RGBLed.cpp - Library for easy use of RGB leds.
-  Created by Primoz Flander 06.11.2020.
-  Released into the public domain.
-*/
-
 #include "RGBLed.h"
 RGBLed::RGBLed(int redLedPin, int greenLedPin, int blueLedpin, bool inverse)
 {

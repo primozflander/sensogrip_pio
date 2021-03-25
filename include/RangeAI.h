@@ -1,9 +1,3 @@
-/*
-  RangeAI.h - Library for calculating optimal sensor range.
-  Created by Primoz Flander 27.10.2020.
-  Released into the public domain.
-*/
-
 #pragma once
 #include <Arduino.h>
 class RangeAI

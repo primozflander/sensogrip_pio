@@ -1,9 +1,3 @@
-/*
-  FlashBLE.cpp - Library for using Arduino BLE flash storage.
-  Created by Primoz Flander 27.10.2020.
-  Released into the public domain.
-*/
-
 #include "FlashBLE.h"
 FlashBLE::FlashBLE()
 {

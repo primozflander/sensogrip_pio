@@ -1,9 +1,3 @@
-/*
-  Statistics.h - Library for easy use of statistics caculations.
-  Created by Primoz Flander 10.11.2020.
-  Released into the public domain.
-*/
-
 #pragma once
 #include <Arduino.h>
 class Statistics

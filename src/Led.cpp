@@ -1,9 +1,3 @@
-/*
-  Led.cpp - Library for easy use of leds.
-  Created by Primoz Flander 06.11.2020.
-  Released into the public domain.
-*/
-
 #include "Led.h"
 Led::Led(int pin, bool inverse)
 {

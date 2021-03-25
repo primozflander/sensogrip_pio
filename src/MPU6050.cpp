@@ -1,9 +1,3 @@
-/*
-  MPU6050.cpp - Library for easy use of sensorfusion on LSM9DS1 IMU.
-  Created by Primoz Flander 06.11.2020.
-  Released into the public domain.
-*/
-
 #include "MPU6050.h"
 MPU6050::MPU6050(TwoWire &w, int i2cAddress)
 {

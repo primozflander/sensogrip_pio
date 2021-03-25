@@ -1,9 +1,3 @@
-/*
-  DebugUtils.h - Library for simple serial debugging.
-  Created by Primoz Flander 23.11.2020.
-  Released into the public domain.
-*/
-
 #pragma once
 #define DEBUG
 #ifdef DEBUG

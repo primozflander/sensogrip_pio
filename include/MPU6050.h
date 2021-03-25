@@ -1,8 +1,3 @@
-/*
-  MPU6050.cpp - Library for easy use of IMU MPU5060.
-  Created by Primoz Flander 13.11.2020.
-  Released into the public domain.
-*/
 #pragma once
 #include "Arduino.h"
 #include "Wire.h"

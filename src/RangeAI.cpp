@@ -1,8 +1,3 @@
-/*
-  RangeAI.cpp - Library for calculating optimal sensor range.
-  Created by Primoz Flander 27.10.2020.
-  Released into the public domain.
-*/
 #include "RangeAI.h"
 RangeAI::RangeAI(int minRange, int maxRange, int sensorThreshold)
 {

@@ -1,9 +1,3 @@
-/*
-  BatterySensor.cpp - Library for easy use of battery sensors.
-  Created by Primoz Flander 26.02.2021.
-  Released into the public domain.
-*/
-
 #include "BatterySensor.h"
 BatterySensor::BatterySensor(int pin) : Sensor::Sensor(pin)
 {
