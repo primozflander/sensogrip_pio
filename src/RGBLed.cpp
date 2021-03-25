@@ -340,16 +340,16 @@ void RGBLed::ledTest()
 
 void RGBLed::blinkOk()
 {
-    setGreenBrightness(0);
     setGreenBrightness(255);
     delay(100);
     setGreenBrightness(0);
+    delay(100);
 }
 
 void RGBLed::blinkNok()
 {
-    setRedBrightness(0);
     setRedBrightness(255);
     delay(100);
     setRedBrightness(0);
+    delay(100);
 }

@@ -63,5 +63,5 @@ inline long timingStop = 0;
 inline bool positiveFeedback = true;
 inline bool aiRangeAssistance = false;
 inline bool angleCorrection = true;
-inline int ledAssistance = 1;
+inline int ledAssistance = 4;
 inline int tipPressureReleaseDelay = 80;

@@ -58,15 +58,16 @@ void initIO()
     }
     BLEconfig();
     configureSensors();
+    //disableUART();
 }
 
 void configureSensors()
 {
-    // tipSensor.setOutputCorrectionFactor(1);
+    tipSensor.setOutputCorrectionFactor(1.3);
+    fingerSensor.setOutputCorrectionFactor(0.33);
     pinMode(SNZ_PWR, OUTPUT);
     digitalWrite(SNZ_PWR, HIGH);
     rgbLed.ledTest();
-    
 }
 
 void readSensors()
@@ -85,7 +86,7 @@ void sendSensorData()
     if (millis() - previousSendMillis >= SERIAL_SEND_INTERVAL)
     {
         String payload = String(millis()) + " " + String(tipSensor.getValue()) + " " + String(fingerSensor.getValue()) + " " + String(batteryLevel.getFilteredValue()) + " " +
-                         String(mpu.getAngY()) + " " + String(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
+                         String(mpu.getAngY()) + " " + String(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ())) + " " + String(ledAssistance) + " " + String(positiveFeedback);
         Serial.println(payload);
         previousSendMillis += SERIAL_SEND_INTERVAL;
     }
@@ -93,65 +94,158 @@ void sendSensorData()
 
 void showLedFeedback()
 {
-    static int ledFeedbackCounter = 0;
+    enum feedback
+    {
+        noFeedback,
+        allSensorsInRange,
+        anySensorInRange,
+        anySensorInRangeTwoColors,
+        allSensorsInRangeWithOverpressureColor,
+    };
+
     static unsigned long previousLedFeedbackMillis = 0;
     if (millis() - previousLedFeedbackMillis >= LED_FEEDBACK_INTERVAL)
     {
         if (aiRangeAssistance)
             calculateOptimalRange();
-        if (tipSensor.isInRange() && fingerSensor.isInRange())
+        switch (ledAssistance)
         {
-            if (positiveFeedback)
-                rgbLed.displayOkColor();
-            else
-                rgbLed.displayNoColor();
-            ledFeedbackCounter += 10;
-            ledFeedbackCounter = min(ledFeedbackCounter, tipPressureReleaseDelay);
+        case noFeedback:
+            rgbLed.displayNoColor();
+            break;
+        case allSensorsInRange:
+            showLedAllSensorsInRange();
+            break;
+        case anySensorInRange:
+            showLedAnySensorInRange();
+            break;
+        case anySensorInRangeTwoColors:
+            showLedAnySensorInRangeTwoColors();
+            break;
+        case allSensorsInRangeWithOverpressureColor:
+            showLedAllSensorsInRangeWithOverpressureColor();
+            break;
+        default:
+            rgbLed.off();
+            break;
         }
-        else if (tipSensor.isUnderRange() && ledFeedbackCounter > 0)
-        {
-            ledFeedbackCounter -= 1;
-        }
-        else
-        {
-            if (positiveFeedback && !tipSensor.isInRange() && !fingerSensor.isInRange())
-                rgbLed.displayNoColor();
-            else if (!positiveFeedback && !tipSensor.isInRange() && !fingerSensor.isInRange())
-                rgbLed.displayNokColor();
-            ledFeedbackCounter = 0;
-        }
-        if (ledFeedbackCounter <= 0)
-            showLedAssistance();
         previousLedFeedbackMillis += LED_FEEDBACK_INTERVAL;
     }
 }
 
-void showLedAssistance()
+void showLedAllSensorsInRange()
 {
-    switch (ledAssistance)
+    static int ledFeedbackCounter = 0;
+    if (tipSensor.isInRange() && fingerSensor.isInRange())
     {
-    case 1:
-        if (!tipSensor.isInRange() != !fingerSensor.isInRange())
-        {
-            rgbLed.displaySimpleAssistanceColor();
-        }
-        break;
-    case 2:
-        if (tipSensor.isInRange() && !fingerSensor.isInRange())
-        {
-            rgbLed.displayTipAssistanceColor();
-        }
-        if (!tipSensor.isInRange() && fingerSensor.isInRange())
-        {
-            rgbLed.displayFingerAssistanceColor();
-        }
-        break;
-    default:
-        if (!tipSensor.isInRange() != !fingerSensor.isInRange())
-        {
+        ledFeedbackCounter += 5;
+        ledFeedbackCounter = min(ledFeedbackCounter, tipPressureReleaseDelay);
+        if (positiveFeedback)
+            rgbLed.displayOkColor();
+        else
             rgbLed.displayNoColor();
-        }
-        break;
+    }
+    else if (tipSensor.isUnderRange() && ledFeedbackCounter > 0)
+    {
+        ledFeedbackCounter -= 1;
+    }
+    else
+    {
+        if (positiveFeedback)
+            rgbLed.displayNoColor();
+        else
+            rgbLed.displayNokColor();
+        ledFeedbackCounter = 0;
+    }
+}
+
+void showLedAnySensorInRange()
+{
+    static int ledFeedbackCounter = 0;
+    if (tipSensor.isInRange() && fingerSensor.isInRange())
+    {
+        ledFeedbackCounter += 5;
+        ledFeedbackCounter = min(ledFeedbackCounter, tipPressureReleaseDelay);
+        if (positiveFeedback)
+            rgbLed.displayOkColor();
+        else
+            rgbLed.displayNoColor();
+    }
+    else if (tipSensor.isUnderRange() && ledFeedbackCounter > 0)
+    {
+        ledFeedbackCounter -= 1;
+    }
+    else if ((!tipSensor.isInRange() != !fingerSensor.isInRange()) && ledFeedbackCounter <= 0)
+    {
+        rgbLed.displaySimpleAssistanceColor();
+    }
+    else
+    {
+        if (positiveFeedback)
+            rgbLed.displayNoColor();
+        else
+            rgbLed.displayNokColor();
+        ledFeedbackCounter = 0;
+    }
+}
+
+void showLedAnySensorInRangeTwoColors()
+{
+    static int ledFeedbackCounter = 0;
+    if (tipSensor.isInRange() && fingerSensor.isInRange())
+    {
+        ledFeedbackCounter += 5;
+        ledFeedbackCounter = min(ledFeedbackCounter, tipPressureReleaseDelay);
+        if (positiveFeedback)
+            rgbLed.displayOkColor();
+        else
+            rgbLed.displayNoColor();
+    }
+    else if (tipSensor.isUnderRange() && ledFeedbackCounter > 0)
+    {
+        ledFeedbackCounter -= 1;
+    }
+    else if ((tipSensor.isInRange() && !fingerSensor.isInRange()) && ledFeedbackCounter <= 0)
+    {
+        rgbLed.displayTipAssistanceColor();
+    }
+    else if ((!tipSensor.isInRange() && fingerSensor.isInRange()) && ledFeedbackCounter <= 0)
+    {
+        rgbLed.displayFingerAssistanceColor();
+    }
+    else
+    {
+        if (positiveFeedback)
+            rgbLed.displayNoColor();
+        else
+            rgbLed.displayNokColor();
+        ledFeedbackCounter = 0;
+    }
+}
+
+void showLedAllSensorsInRangeWithOverpressureColor()
+{
+
+    static int ledFeedbackCounter = 0;
+    if (tipSensor.isInRange() && fingerSensor.isInRange())
+    {
+        ledFeedbackCounter += 5;
+        ledFeedbackCounter = min(ledFeedbackCounter, tipPressureReleaseDelay);
+        rgbLed.displayOkColor();
+    }
+    else if (tipSensor.isUnderRange() && ledFeedbackCounter > 0)
+    {
+        ledFeedbackCounter -= 1;
+    }
+    else if (tipSensor.isOverRange() || fingerSensor.isOverRange())
+    {
+        rgbLed.displayNokColor();
+        ledFeedbackCounter = 0;
+    }
+    else
+    {
+        rgbLed.displayNoColor();
+        ledFeedbackCounter = 0;
     }
 }
 
@@ -170,7 +264,7 @@ void sendAndReceiveBLEData()
 
 void BLEconfig()
 {
-    BLE.setLocalName("SensoGrip");
+    BLE.setLocalName("SensoGrip#4");
     BLE.setAdvertisedService(sensoGripService);
     sensoGripService.addCharacteristic(minutesPassedInUseChar);
     sensoGripService.addCharacteristic(minutesPassedInRangeChar);
@@ -187,27 +281,13 @@ void sendBLEData()
     static unsigned long previousBLEMillis = 0;
     if (millis() - previousBLEMillis >= BLE_SEND_INTERVAL)
     {
-        // dataStream.values[0] = millis() / 100;
-        // dataStream.values[1] = tipSensor.getValue();
-        // dataStream.values[2] = fingerSensor.getValue();
-        // dataStream.values[3] = (int)mpu.getAngY();
-        // dataStream.values[4] = (int)(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
-        // dataStream.values[5] = batteryLevel.getFilteredValue();
-        // dataStream.values[6] = Stats.getMinutesInRange();
-        // dataStream.values[7] = Stats.getMinutesInUse();
-        // dataStream.values[8] = tipSensor.getUpperRange();
-        // dataStream.values[9] = tipSensor.getLowerRange();
-        // dataStream.values[10] = fingerSensor.getUpperRange();
-        // dataStream.values[11] = fingerSensor.getLowerRange();
-        // dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
-
         dataStream.values[0] = millis() / 100;
         dataStream.values[1] = tipSensor.getValue();
         dataStream.values[2] = fingerSensor.getValue();
-        dataStream.values[3] = tipSensor.getRawValue();
-        dataStream.values[4] = fingerSensor.getRawValue();
-        dataStream.values[5] = (int)mpu.getAngY();
-        dataStream.values[6] = (int)mpu.getAngY();
+        dataStream.values[3] = (int)mpu.getAngY();
+        dataStream.values[4] = (int)(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
+        dataStream.values[5] = batteryLevel.getFilteredValue();
+        dataStream.values[6] = Stats.getMinutesInRange();
         dataStream.values[7] = Stats.getMinutesInUse();
         dataStream.values[8] = tipSensor.getUpperRange();
         dataStream.values[9] = tipSensor.getLowerRange();
@@ -259,7 +339,7 @@ void getBLEData()
         Flash.put("positiveFeedback", String(positiveFeedback));
         rgbLed.off();
         DEBUG_PRINTLN("feedback written: " + String(configurationState.values[4]));
-        ledAssistance = constrain(configurationState.values[5], 0, 2);
+        ledAssistance = constrain(configurationState.values[5], 0, 4);
         Flash.put("ledAssistance", String(ledAssistance));
         rgbLed.off();
         DEBUG_PRINTLN("ledAssistance written: " + String(configurationState.values[5]));

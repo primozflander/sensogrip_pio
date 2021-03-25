@@ -18,3 +18,8 @@ void calculateOptimalRange();
 void powerOffFunctionality();
 void sleepToSavePower();
 void isBatteryOk();
+void showLedAllSensorsInRange();
+void showLedAnySensorInRange();
+void showLedAnySensorInRangeTwoColors();
+void showLedAllSensorsInRangeWithOverpressureColor();
+void disableUART();
