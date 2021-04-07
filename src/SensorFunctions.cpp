@@ -2,8 +2,8 @@
 
 void configureSensors()
 {
-    tipSensor.setOutputCorrectionFactor(1.3);
-    fingerSensor.setOutputCorrectionFactor(0.33);
+    // tipSensor.setOutputCorrectionFactor(1.3);
+    // fingerSensor.setOutputCorrectionFactor(0.33);
     pinMode(SNZ_PWR, OUTPUT);
     digitalWrite(SNZ_PWR, HIGH);
     rgbLed.ledTest();

@@ -1,26 +1,23 @@
 #include <Arduino.h>
 #include "GlobalVariables.h"
 
-
 void setup()
 {
     // while (!Serial);
+    
     initIO();
-    //saveConfigurationToFlash();
+    // saveConfigurationToFlash();
     readConfigurationFromFlash();
-    // ledPwr.off();
 }
 
 void loop()
 {
-    //timingStart = millis();
+    onCharging();
     readSensors();
     showLedFeedback();
     sendAndReceiveBLEData();
     //sendSensorData();
     updateStatistics();
     sleepToSavePower();
-    //powerOffFunctionality();
-    //timingStop = millis();
-    //Serial.println(timingStop - timingStart);
+    powerOffFunctionality();
 }

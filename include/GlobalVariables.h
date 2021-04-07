@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Arduino.h>
 #include <ArduinoBLE.h>
 #include "MPU6050.h"
@@ -16,6 +15,8 @@
 #include "BleFunctions.h"
 #include "SensorFunctions.h"
 #include "SystemFunctions.h"
+
+#define DISPLAYED_DEVICE_NAME "Sensogrip#3"
 
 union data_stream
 {
@@ -73,9 +74,6 @@ inline TipSensor tipSensor(A0, 100, 70);
 inline FingerSensor fingerSensor(A1, 100, 70);
 inline BatterySensor batteryLevel(A2);
 inline RGBLed rgbLed(9, 10, 11, false);
-inline Led onboardLedR(22, true);
-inline Led onboardLedG(23, true);
-inline Led onboardLedB(24, true);
 inline Led ledBuiltIn(LED_BUILTIN);
 inline Led ledPwr(LED_PWR);
 inline FlashBLE Flash;

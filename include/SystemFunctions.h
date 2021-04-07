@@ -3,6 +3,7 @@
 #include "GlobalVariables.h"
 
 void isBatteryOk();
+void onCharging();
 void initIO();
 void saveConfigurationToFlash();
 void readConfigurationFromFlash();

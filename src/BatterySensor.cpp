@@ -9,7 +9,7 @@ int BatterySensor::getSensorValue()
     analogReference(AR_INTERNAL2V4);
     int output = map(analogRead(pin), 680, 870, 0, 100);
     analogReference(AR_VDD);
-    output = constrain(output, 0, 101);
+    output = constrain(output, 0, 100);
     return output = (int)(!inverse) ? output : -output;
 }
 

@@ -15,7 +15,7 @@ void sendAndReceiveBLEData()
 
 void BLEconfig()
 {
-    BLE.setLocalName("SensoGrip#4");
+    BLE.setLocalName(DISPLAYED_DEVICE_NAME);
     BLE.setAdvertisedService(sensoGripService);
     sensoGripService.addCharacteristic(minutesPassedInUseChar);
     sensoGripService.addCharacteristic(minutesPassedInRangeChar);

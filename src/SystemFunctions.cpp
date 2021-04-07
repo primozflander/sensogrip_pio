@@ -1,15 +1,6 @@
 #include "SystemFunctions.h"
 
-void isBatteryOk()
-{
-    if (!(batteryLevel.getSensorValue() > 0))
-    {
-        mpu.setAccWakeUp();
-        // nrf_gpio_cfg_sense_input(P1_11, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
-        nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW); // sensogrip board D2
-        NRF_POWER->SYSTEMOFF = 1;
-    }
-}
+
 
 void initIO()
 {
@@ -23,6 +14,40 @@ void initIO()
     BLEconfig();
     configureSensors();
     //disableUART();
+    //ledPwr.off();
+}
+
+void isBatteryOk()
+{
+    if (!(batteryLevel.getSensorValue() > 0))
+    {
+        mpu.setAccWakeUp();
+        // nrf_gpio_cfg_sense_input(P1_11, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
+        nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW); // sensogrip board D2
+        NRF_POWER->SYSTEMOFF = 1;
+    }
+}
+
+void onCharging()
+{
+    // delay(100);
+    // uint32_t status = NRF_POWER->USBREGSTATUS;
+    // uint32_t status = NRF_POWER->EVENTS_USBDETECTED;
+    // Serial.print("status");
+    // Serial.println(status);
+    // nrf_power_usbregstatus_vbusdet_get();
+    while (NRF_POWER->USBREGSTATUS == 3)
+    {
+        // rgbLed.setLedColorHsvWithTransition(map(batteryLevel.getSensorValue(), 0, 100, 359, 120));
+        if (batteryLevel.getSensorValue() > 95)
+        {
+            rgbLed.setLedColorHsvWithTransition(120,1.0,0.1);
+        }
+        else
+        {
+            rgbLed.setLedColorHsvWithTransition(0,1.0,0.1);
+        }
+    }
 }
 
 void saveConfigurationToFlash()
@@ -46,6 +71,8 @@ void saveConfigurationToFlash()
     Flash.put("minutesInUse", String(Stats.getMinutesInUse()));
     Flash.put("minutesInRange", String(Stats.getMinutesInRange()));
     Flash.put("angleCorrection", String(isAngleCorrected));
+    Flash.put("tipSensorCorrectionFactor", String(tipSensor.getOutputCorrectionFactor()));
+    Flash.put("fingerSensorCorrectionFactor", String(fingerSensor.getOutputCorrectionFactor()));
     DEBUG_PRINTLN("Configuration saved to flash");
 }
 
@@ -76,6 +103,8 @@ void readConfigurationFromFlash()
         Stats.setMinutesInUse(Flash.get("minutesInUse").toInt());
         Stats.setMinutesInRange(Flash.get("minutesInRange").toInt());
         isAngleCorrected = Flash.get("angleCorrection").toInt();
+        tipSensor.setOutputCorrectionFactor(Flash.get("tipSensorCorrectionFactor").toDouble());
+        fingerSensor.setOutputCorrectionFactor(Flash.get("fingerSensorCorrectionFactor").toDouble());
         DEBUG_PRINTLN("Configuration read from flash");
         updateConfigurationChar();
     }
@@ -105,14 +134,11 @@ void powerOffFunctionality()
             secondsToSleepCounter++;
         else
             secondsToSleepCounter = 0;
-        previousSleepMillis += 1000;
+        previousSleepMillis = millis();
     }
-    if (secondsToSleepCounter > SLEEP_TIMER || batteryLevel.getValue() < 0)
+    if (secondsToSleepCounter > SLEEP_TIMER)
     {
         digitalWrite(SNZ_PWR, LOW);
-        onboardLedR.off();
-        onboardLedG.off();
-        onboardLedB.off();
         rgbLed.off();
         ledBuiltIn.off();
         ledPwr.off();
