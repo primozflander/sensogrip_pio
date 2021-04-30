@@ -9,6 +9,11 @@ void TipSensor::setPitch(float angle)
     pitch = constrain(pitch, 30.0, 89.9);
 }
 
+float TipSensor::getPitch()
+{
+    return pitch;
+}
+
 int TipSensor::getValue()
 {
     float output = filteredValue / sin(pitch * PI / 180);

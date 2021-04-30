@@ -69,7 +69,7 @@ void Sensor::update()
         inputValue = getSensorValue();
         filteredValue = calculateFilteredValue(inputValue);
         average = calculateMovingAverage(inputValue);
-        previousMillis += updateInterval;
+        previousMillis = millis();
     }
 }
 

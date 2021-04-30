@@ -15,7 +15,7 @@ void Statistics::update(int tipSensorValue, int fingerSensorValue, bool tipSenso
         minutesPassedPoweredOn++;
         minutesPassedInUse += (tipSensorValue > 25) ? 1 : 0;
         minutesPassedInRange += (tipSensorInRange && fingerSensorInRange) ? 1 : 0;
-        previousMillis += updateInterval;
+        previousMillis = millis();
     }
 }
 

@@ -1,20 +1,33 @@
 #include "SystemFunctions.h"
 
-
+enum color
+{
+    red = 0,
+    yellow = 60,
+    green = 120,
+    cyan = 180,
+    blue = 240,
+    pink = 300,
+};
 
 void initIO()
 {
-    mpu.initialize();
+    Wire.begin();
+    mpu.begin();
+    //mpu.calcOffsets();
+    mpu.setAccOffsets(0.02, -0.03, -0.07);
+    mpu.setGyroOffsets(-3.19, -1.05, -0.66);
     isBatteryOk();
     Serial.begin(115200);
     if (!BLE.begin())
     {
         DEBUG_PRINTLN("starting BLE failed!");
     }
+    batteryLevel.setUpdateInterval(75);
     BLEconfig();
     configureSensors();
     //disableUART();
-    //ledPwr.off();
+    // ledPwr.off();
 }
 
 void isBatteryOk()
@@ -36,17 +49,30 @@ void onCharging()
     // Serial.print("status");
     // Serial.println(status);
     // nrf_power_usbregstatus_vbusdet_get();
+    bool wasCharging = false;
+    int currentColor = red;
     while (NRF_POWER->USBREGSTATUS == 3)
     {
         // rgbLed.setLedColorHsvWithTransition(map(batteryLevel.getSensorValue(), 0, 100, 359, 120));
-        if (batteryLevel.getSensorValue() > 95)
+        if (batteryLevel.getSensorValue() > 98)
         {
-            rgbLed.setLedColorHsvWithTransition(120,1.0,0.1);
+            rgbLed.setLedColorHsvWithTransition(green, 1.0, 0.1);
+            currentColor = 120;
+        }
+        else if (batteryLevel.getSensorValue() < 95)
+        {
+            rgbLed.setLedColorHsvWithTransition(red, 1.0, 0.2);
+            currentColor = 0;
         }
         else
         {
-            rgbLed.setLedColorHsvWithTransition(0,1.0,0.1);
+            rgbLed.setLedColorHsvWithTransition(currentColor, 1.0, 0.1);
         }
+        wasCharging = true;
+    }
+    if (wasCharging)
+    {
+        __NVIC_SystemReset();
     }
 }
 
@@ -130,10 +156,14 @@ void powerOffFunctionality()
     static unsigned long previousSleepMillis = 0;
     if (millis() - previousSleepMillis >= 1000)
     {
-        if (tipSensor.getValue() < 15)
+        if ((abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ())) < 50)
+        {
             secondsToSleepCounter++;
+        }
         else
+        {
             secondsToSleepCounter = 0;
+        }
         previousSleepMillis = millis();
     }
     if (secondsToSleepCounter > SLEEP_TIMER)
@@ -153,7 +183,7 @@ void powerOffFunctionality()
 
 void sleepToSavePower()
 {
-    long diff = millis() - timingStart;
+    long diff = millis() - loopStartTime;
     if (diff < 10)
         delay(10 - diff);
     // DEBUG_PRINTLN(String("loop ms: ") + diff);

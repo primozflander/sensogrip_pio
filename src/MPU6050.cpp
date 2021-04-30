@@ -1,166 +1,217 @@
 #include "MPU6050.h"
-MPU6050::MPU6050(TwoWire &w, int i2cAddress)
+MPU6050::MPU6050(TwoWire &w)
 {
     wire = &w;
-    if (i2cAddress == ADDRESS_LOW || i2cAddress == ADDRESS_HIGH)
-    {
-        address = i2cAddress;
-    }
-    else
-    {
-        address = ADDRESS_LOW;
-    }
+    setFilterGyroCoef(DEFAULT_GYRO_COEFF);
+    setGyroOffsets(0, 0, 0);
+    setAccOffsets(0, 0, 0);
 }
 
-static float wrap(float angle)
+byte MPU6050::begin(int gyro_config_num, int acc_config_num)
 {
-    while (angle > +180)
-        angle -= 360;
-    while (angle < -180)
-        angle += 360;
-    return angle;
+    writeData(SMPLRT_DIV_REGISTER, 0x00);
+    writeData(CONFIG_REGISTER, 0x00);
+    // writeData(GYRO_CONFIG, 0x08);
+    // writeData(ACCEL_CONFIG, 0x00);
+    // writeData(PWR_MGMT_1, 0x01);
+    // writeData(PWR_MGMT_2, 0x80);
+    setGyroConfig(gyro_config_num);
+    setAccConfig(acc_config_num);
+    byte status = writeData(PWR_MGMT_1_REGISTER, 0x01);
+    this->update();
+    angleX = this->getAccAngleX();
+    angleY = this->getAccAngleY();
+    preInterval = millis();
+    return status;
 }
 
-static float angle_average(float wa, float a, float wb, float b)
+byte MPU6050::writeData(byte reg, byte data)
 {
-    return wrap(wa * a + wb * (a + wrap(b - a)));
-}
-
-void MPU6050::initialize()
-{
-    wire->begin();
-    this->baseInitialize();
-}
-
-void MPU6050::baseInitialize()
-{
-    filterAccelCoeff = DEFAULT_ACCEL_COEFF;
-    filterGyroCoeff = DEFAULT_GYRO_COEFF;
-    this->registerWrite(SMPLRT_DIV, 0x00);
-    this->registerWrite(CONFIG, 0x00);
-    this->registerWrite(GYRO_CONFIG, 0x08);
-    this->registerWrite(ACCEL_CONFIG, 0x00);
-    this->registerWrite(PWR_MGMT_1, 0x01);
-    this->registerWrite(PWR_MGMT_2, 0x80);
-    angX = 0;
-    angY = 0;
-    angZ = 0;
-    intervalStart = millis();
-}
-
-void MPU6050::execute()
-{
-    this->updateRawAccel();
-    this->updateRawGyro();
-    accX = (float)(rawAccX)*ACCEL_TRANSFORMATION_NUMBER;
-    accY = (float)(rawAccY)*ACCEL_TRANSFORMATION_NUMBER;
-    accZ = (float)(rawAccZ)*ACCEL_TRANSFORMATION_NUMBER;
-    gyroX = (float)(rawGyroX - gyroXOffset) * GYRO_TRANSFORMATION_NUMBER;
-    gyroY = (float)(rawGyroY - gyroYOffset) * GYRO_TRANSFORMATION_NUMBER;
-    gyroZ = (float)(rawGyroZ - gyroZOffset) * GYRO_TRANSFORMATION_NUMBER;
-    angAccX = wrap((atan2(accY, sqrt(accZ * accZ + accX * accX))) * RAD_TO_DEG);
-    angAccY = wrap((-atan2(accX, sqrt(accZ * accZ + accY * accY))) * RAD_TO_DEG);
-    dt = (millis() - intervalStart) * 0.001;
-    angGyroX = wrap(angGyroX + gyroX * dt);
-    angGyroY = wrap(angGyroY + gyroY * dt);
-    angGyroZ = wrap(angGyroZ + gyroZ * dt);
-    angX = angle_average(filterAccelCoeff, angAccX, filterGyroCoeff, angX + gyroX * dt);
-    angY = angle_average(filterAccelCoeff, angAccY, filterGyroCoeff, angY + gyroY * dt);
-    angZ = angGyroZ;
-    intervalStart = millis();
-}
-
-void MPU6050::updateRawAccel()
-{
-    wire->beginTransmission(address);
-    wire->write(ACCEL_XOUT_H);
-    wire->endTransmission(false);
-    wire->requestFrom(address, 6, (int)true);
-    rawAccX = wire->read() << 8;
-    rawAccX |= wire->read();
-    rawAccY = wire->read() << 8;
-    rawAccY |= wire->read();
-    rawAccZ = wire->read() << 8;
-    rawAccZ |= wire->read();
-}
-
-void MPU6050::updateRawGyro()
-{
-    wire->beginTransmission(address);
-    wire->write(GYRO_XOUT_H);
-    wire->endTransmission(false);
-    wire->requestFrom(address, 6, (int)true);
-    rawGyroX = wire->read() << 8;
-    rawGyroX |= wire->read();
-    rawGyroY = wire->read() << 8;
-    rawGyroY |= wire->read();
-    rawGyroZ = wire->read() << 8;
-    rawGyroZ |= wire->read();
-}
-
-void MPU6050::registerWrite(byte registerAddress, byte data)
-{
-    wire->beginTransmission(address);
-    wire->write(registerAddress);
+    wire->beginTransmission(ADDR);
+    wire->write(reg);
     wire->write(data);
-    wire->endTransmission();
+    byte status = wire->endTransmission();
+    return status; // 0 if success
 }
 
-void MPU6050::calibrate()
+byte MPU6050::readData(byte reg)
 {
-    for (int i = 0; i < DISCARDED_MEASURES; i++)
+    wire->beginTransmission(ADDR);
+    wire->write(reg);
+    wire->endTransmission(true);
+    wire->requestFrom(ADDR, 1);
+    byte data = wire->read();
+    return data;
+}
+
+byte MPU6050::setGyroConfig(int config_num)
+{
+    byte status;
+    switch (config_num)
     {
-        this->updateRawAccel();
-        this->updateRawGyro();
-        delay(2);
+    case 0: // range = +- 250 °/s
+        gyro_lsb_to_degsec = 131.0;
+        status = writeData(GYRO_CONFIG_REGISTER, 0x00);
+        break;
+    case 1: // range = +- 500 °/s
+        gyro_lsb_to_degsec = 65.5;
+        status = writeData(GYRO_CONFIG_REGISTER, 0x08);
+        break;
+    case 2: // range = +- 1000 °/s
+        gyro_lsb_to_degsec = 32.8;
+        status = writeData(GYRO_CONFIG_REGISTER, 0x10);
+        break;
+    case 3: // range = +- 2000 °/s
+        gyro_lsb_to_degsec = 16.4;
+        status = writeData(GYRO_CONFIG_REGISTER, 0x18);
+        break;
+    default: // error
+        status = 1;
+        break;
     }
-    float sumGyroX = 0;
-    float sumGyroY = 0;
-    float sumGyroZ = 0;
-    for (int i = 0; i < CALIBRATION_MEASURES; i++)
+    return status;
+}
+
+byte MPU6050::setAccConfig(int config_num)
+{
+    byte status;
+    switch (config_num)
     {
-        this->updateRawAccel();
-        this->updateRawGyro();
-        sumGyroX += this->getRawGyroX();
-        sumGyroY += this->getRawGyroY();
-        sumGyroZ += this->getRawGyroZ();
-        delay(2);
+    case 0: // range = +- 2 g
+        acc_lsb_to_g = 16384.0;
+        status = writeData(ACCEL_CONFIG_REGISTER, 0x00);
+        break;
+    case 1: // range = +- 4 g
+        acc_lsb_to_g = 8192.0;
+        status = writeData(ACCEL_CONFIG_REGISTER, 0x08);
+        break;
+    case 2: // range = +- 8 g
+        acc_lsb_to_g = 4096.0;
+        status = writeData(ACCEL_CONFIG_REGISTER, 0x10);
+        break;
+    case 3: // range = +- 16 g
+        acc_lsb_to_g = 2048.0;
+        status = writeData(ACCEL_CONFIG_REGISTER, 0x18);
+        break;
+    default: // error
+        status = 1;
+        break;
     }
-    sumGyroX /= CALIBRATION_MEASURES;
-    sumGyroY /= CALIBRATION_MEASURES;
-    sumGyroZ /= CALIBRATION_MEASURES;
-    this->setGyroOffsets(sumGyroX, sumGyroY, sumGyroZ);
+    return status;
 }
 
 void MPU6050::setGyroOffsets(float x, float y, float z)
 {
-    gyroXOffset = x;
-    gyroYOffset = y;
-    gyroZOffset = z;
+    gyroXoffset = x;
+    gyroYoffset = y;
+    gyroZoffset = z;
 }
 
-void MPU6050::setFilterAccCoeff(float coeff)
+void MPU6050::setAccOffsets(float x, float y, float z)
 {
-    filterAccelCoeff = coeff;
+    accXoffset = x;
+    accYoffset = y;
+    accZoffset = z;
 }
 
-void MPU6050::setFilterGyroCoeff(float coeff)
+void MPU6050::setFilterGyroCoef(float gyro_coeff)
 {
-    filterGyroCoeff = coeff;
+    if ((gyro_coeff < 0) or (gyro_coeff > 1))
+    {
+        gyro_coeff = DEFAULT_GYRO_COEFF;
+    }
+    filterGyroCoef = gyro_coeff;
+}
+
+void MPU6050::setFilterAccCoef(float acc_coeff)
+{
+    setFilterGyroCoef(1.0 - acc_coeff);
+}
+
+void MPU6050::calcOffsets(bool is_calc_gyro, bool is_calc_acc)
+{
+    if (is_calc_gyro)
+    {
+        setGyroOffsets(0, 0, 0);
+    }
+    if (is_calc_acc)
+    {
+        setAccOffsets(0, 0, 0);
+    }
+    float ag[6] = {0, 0, 0, 0, 0, 0}; // 3*acc, 3*gyro
+    for (int i = 0; i < CALIB_OFFSET_NB_MES; i++)
+    {
+        this->fetchData();
+        ag[0] += accX;
+        ag[1] += accY;
+        ag[2] += (accZ - 1.0);
+        ag[3] += gyroX;
+        ag[4] += gyroY;
+        ag[5] += gyroZ;
+        delay(1); // wait a little bit between 2 measurements
+    }
+    if (is_calc_acc)
+    {
+        accXoffset = ag[0] / CALIB_OFFSET_NB_MES;
+        accYoffset = ag[1] / CALIB_OFFSET_NB_MES;
+        accZoffset = ag[2] / CALIB_OFFSET_NB_MES;
+    }
+    if (is_calc_gyro)
+    {
+        gyroXoffset = ag[3] / CALIB_OFFSET_NB_MES;
+        gyroYoffset = ag[4] / CALIB_OFFSET_NB_MES;
+        gyroZoffset = ag[5] / CALIB_OFFSET_NB_MES;
+    }
+    Serial.println(String(accXoffset) + " " + String(accYoffset) + " " + String(accZoffset) + " " + String(gyroXoffset) + " " + String(gyroYoffset) + " " + String(gyroZoffset));
+}
+
+void MPU6050::fetchData()
+{
+    wire->beginTransmission(ADDR);
+    wire->write(ACCEL_OUT_REGISTER);
+    wire->endTransmission(false);
+    wire->requestFrom((int)ADDR, 14);
+    int16_t rawData[7]; // [ax,ay,az,temp,gx,gy,gz]
+    for (int i = 0; i < 7; i++)
+    {
+        rawData[i] = wire->read() << 8;
+        rawData[i] |= wire->read();
+    }
+    accX = ((float)rawData[0]) / acc_lsb_to_g - accXoffset;
+    accY = ((float)rawData[1]) / acc_lsb_to_g - accYoffset;
+    accZ = ((float)rawData[2]) / acc_lsb_to_g - accZoffset;
+    temp = (rawData[3] + TEMP_LSB_OFFSET) / TEMP_LSB_2_DEGREE;
+    gyroX = ((float)rawData[4]) / gyro_lsb_to_degsec - gyroXoffset;
+    gyroY = ((float)rawData[5]) / gyro_lsb_to_degsec - gyroYoffset;
+    gyroZ = ((float)rawData[6]) / gyro_lsb_to_degsec - gyroZoffset;
+}
+
+void MPU6050::update()
+{
+    this->fetchData();
+    float sgZ = (accZ >= 0) - (accZ < 0);
+    angleAccX = atan2(accY, sgZ * sqrt(accZ * accZ + accX * accX)) * RAD_2_DEG;
+    angleAccY = -atan2(accX, sqrt(accZ * accZ + accY * accY)) * RAD_2_DEG;
+    unsigned long Tnew = millis();
+    float dt = (Tnew - preInterval) * 1e-3;
+    preInterval = Tnew;
+    angleX = (filterGyroCoef * (angleX + gyroX * dt)) + ((1.0 - filterGyroCoef) * angleAccX);
+    angleY = (filterGyroCoef * (angleY + gyroY * dt)) + ((1.0 - filterGyroCoef) * angleAccY);
+    angleZ += gyroZ * dt;
 }
 
 void MPU6050::setAccWakeUp()
 {
-    this->registerWrite(PWR_MGMT_1, 0b00001000);
-    this->registerWrite(PWR_MGMT_2, 0b00000111);
-    this->registerWrite(ACCEL_CONFIG, 0x00);
-    this->registerWrite(CONFIG, 0x00);
-    this->registerWrite(INT_ENABLE, 0x40);
-    this->registerWrite(INT_PIN_CFG, 128);
-    this->registerWrite(MOT_THR, 10);
-    this->registerWrite(MOT_DUR, 0x01);
+    writeData(PWR_MGMT_1_REGISTER, 0b00001000);
+    writeData(PWR_MGMT_2_REGISTER, 0b00000111);
+    writeData(ACCEL_CONFIG_REGISTER, 0x00);
+    writeData(CONFIG_REGISTER, 0x00);
+    writeData(INT_ENABLE_REGISTER, 0x40);
+    writeData(INT_PIN_CFG_REGISTER, 128);
+    writeData(MOT_THR_REGISTER, 10);
+    writeData(MOT_DUR_REGISTER, 0x01);
     delay(100);
-    this->registerWrite(ACCEL_CONFIG, 0x07);
-    this->registerWrite(PWR_MGMT_2, 0x47);
-    this->registerWrite(PWR_MGMT_1, 0x20);
+    writeData(ACCEL_CONFIG_REGISTER, 0x07);
+    writeData(PWR_MGMT_2_REGISTER, 0x47);
+    writeData(PWR_MGMT_1_REGISTER, 0x20);
 }

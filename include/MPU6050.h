@@ -1,87 +1,77 @@
 #pragma once
 #include "Arduino.h"
 #include "Wire.h"
-#define ADDRESS_LOW 0x68
-#define ADDRESS_HIGH 0x69
-#define ADDRESS ADDRESS_LOW
-//Configuration registers
-#define SMPLRT_DIV 0x19
-#define CONFIG 0x1A
-#define GYRO_CONFIG 0x1B
-#define ACCEL_CONFIG 0x1C
-#define PWR_MGMT_1 0x6B
-#define PWR_MGMT_2 0x6C
-#define SIGNAL_PATH_RESET 0x68
-#define MOT_THR 0x1F
-#define MOT_DUR 0x20
-#define MOT_DETECT_CTRL 0x69
-#define INT_ENABLE 0x38
-#define INT_STATUS 0x3A
-#define INT_PIN_CFG 0x37
-//Data registers
-#define ACCEL_XOUT_H 0x3B
-#define GYRO_XOUT_H 0x43
-//Macros
-#define ACCEL_TRANSFORMATION_NUMBER 0.00006103515
-#define GYRO_TRANSFORMATION_NUMBER 0.01525878906
-#define DEFAULT_ACCEL_COEFF 0.02f
-#define DEFAULT_GYRO_COEFF 0.98f
-#define DISCARDED_MEASURES 100
-#define CALIBRATION_MEASURES 5000
-#define CHECKING_MEASURES 50
-#define ACCEL_PREOFFSET_MAGIC_NUMBER 8
-#define GYRO_PREOFFSET_MAGIC_NUMBER 4
+
+#define CONFIG_REGISTER 0x1a
+#define GYRO_CONFIG_REGISTER 0x1b
+#define ACCEL_CONFIG_REGISTER 0x1c
+#define MOT_THR_REGISTER 0x1f
+#define MOT_DUR_REGISTER 0x20
+#define INT_ENABLE_REGISTER 0x38
+#define INT_PIN_CFG_REGISTER 0x37
+#define ADDR 0x68
+#define SMPLRT_DIV_REGISTER 0x19
+#define CONFIG_REGISTER 0x1a
+#define GYRO_CONFIG_REGISTER 0x1b
+#define ACCEL_CONFIG_REGISTER 0x1c
+#define PWR_MGMT_1_REGISTER 0x6b
+#define PWR_MGMT_2_REGISTER 0x6c
+#define GYRO_OUT_REGISTER 0x43
+#define ACCEL_OUT_REGISTER 0x3b
+#define RAD_2_DEG 57.29578
+#define CALIB_OFFSET_NB_MES 5000
+#define TEMP_LSB_2_DEGREE 340.0
+#define TEMP_LSB_OFFSET 12412.0
+#define DEFAULT_GYRO_COEFF 0.98
 
 class MPU6050
 {
 private:
     TwoWire *wire;
-    int address;
-    float gyroXOffset, gyroYOffset, gyroZOffset;
-    int16_t rawAccX, rawAccY, rawAccZ, rawGyroX, rawGyroY, rawGyroZ;
-    float accX, accY, accZ, gyroX, gyroY, gyroZ;
-    long intervalStart;
-    float dt;
-    float angGyroX, angGyroY, angGyroZ, angAccX, angAccY;
-    float filterAccelCoeff, filterGyroCoeff;
-    float angX, angY, angZ;
-    void baseInitialize();
+    float gyro_lsb_to_degsec, acc_lsb_to_g;
+    float gyroXoffset, gyroYoffset, gyroZoffset;
+    float accXoffset, accYoffset, accZoffset;
+    float temp, accX, accY, accZ, gyroX, gyroY, gyroZ;
+    float angleAccX, angleAccY;
+    float angleX, angleY, angleZ;
+    long preInterval;
+    float filterGyroCoef;
 
 public:
-    MPU6050(TwoWire &w, int i2cAddress = ADDRESS);
-    void initialize();
-    void execute();
-    void updateRawAccel();
-    void updateRawGyro();
-    void registerWrite(byte registerAddress, byte data);
-    void calibrate();
-    float getGyroXOffset() { return gyroXOffset; };
-    float getGyroYOffset() { return gyroYOffset; };
-    float getGyroZOffset() { return gyroZOffset; };
+    MPU6050(TwoWire &w);
+    byte begin(int gyro_config_num = 1, int acc_config_num = 0);
+    byte writeData(byte reg, byte data);
+    byte readData(byte reg);
+    void calcOffsets(bool is_calc_gyro = true, bool is_calc_acc = true);
+    void calcGyroOffsets() { calcOffsets(true, false); }; // retro-compatibility with v1.0.0
+    void calcAccOffsets() { calcOffsets(false, true); };  // retro-compatibility with v1.0.0
+    byte setGyroConfig(int config_num);
+    byte setAccConfig(int config_num);
     void setGyroOffsets(float x, float y, float z);
-    int16_t getRawAccX() { return rawAccX; };
-    int16_t getRawAccY() { return rawAccY; };
-    int16_t getRawAccZ() { return rawAccZ; };
-    int16_t getRawGyroX() { return rawGyroX; };
-    int16_t getRawGyroY() { return rawGyroY; };
-    int16_t getRawGyroZ() { return rawGyroZ; };
+    void setAccOffsets(float x, float y, float z);
+    void setFilterGyroCoef(float gyro_coeff);
+    void setFilterAccCoef(float acc_coeff);
+    float getGyroXoffset() { return gyroXoffset; };
+    float getGyroYoffset() { return gyroYoffset; };
+    float getGyroZoffset() { return gyroZoffset; };
+    float getAccXoffset() { return accXoffset; };
+    float getAccYoffset() { return accYoffset; };
+    float getAccZoffset() { return accZoffset; };
+    float getFilterGyroCoef() { return filterGyroCoef; };
+    float getFilterAccCoef() { return 1.0 - filterGyroCoef; };
+    float getTemp() { return temp; };
     float getAccX() { return accX; };
     float getAccY() { return accY; };
     float getAccZ() { return accZ; };
     float getGyroX() { return gyroX; };
     float getGyroY() { return gyroY; };
     float getGyroZ() { return gyroZ; };
-    float getAngAccX() { return angAccX; };
-    float getAngAccY() { return angAccY; };
-    float getAngGyroX() { return angGyroX; };
-    float getAngGyroY() { return angGyroY; };
-    float getAngGyroZ() { return angGyroZ; };
-    float getAngX() { return angX; };
-    float getAngY() { return angY; };
-    float getAngZ() { return angZ; };
-    float getFilterAccCoeff() { return filterAccelCoeff; };
-    float getFilterGyroCoeff() { return filterGyroCoeff; };
-    void setFilterAccCoeff(float coeff);
-    void setFilterGyroCoeff(float coeff);
+    float getAccAngleX() { return angleAccX; };
+    float getAccAngleY() { return angleAccY; };
+    float getAngX() { return angleX; };
+    float getAngY() { return angleY; };
+    float getAngZ() { return angleZ; };
+    void fetchData();
+    void update();
     void setAccWakeUp();
 };
