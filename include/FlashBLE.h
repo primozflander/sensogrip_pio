@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include "KVStore.h"
 #include "kvstore_global_api.h"
+#include "mbed.h"
+
 class FlashBLE
 {
 #define EXAMPLE_KV_VALUE_LENGTH 64

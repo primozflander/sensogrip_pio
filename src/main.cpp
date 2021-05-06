@@ -3,10 +3,10 @@
 
 void setup()
 {
-    // while (!Serial);
+    //while (!Serial);
     initIO();
     //tipSensor.setOutputCorrectionFactor(2.44);
-    // fingerSensor.setOutputCorrectionFactor(0.56);
+    //fingerSensor.setOutputCorrectionFactor(0.56);
     //saveConfigurationToFlash();
     readConfigurationFromFlash();
 }
@@ -21,6 +21,6 @@ void loop()
     sendAndReceiveBLEData();
     //sendSensorData();
     updateStatistics();
-    //powerOffFunctionality();
+    powerOffFunctionality();
     sleepToSavePower();
 }

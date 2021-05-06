@@ -4,6 +4,8 @@
 
 void isBatteryOk();
 void onCharging();
+String stringSegToFloat(String data, char separator, int index);
+void calibrateIMU();
 void initIO();
 void saveConfigurationToFlash();
 void readConfigurationFromFlash();

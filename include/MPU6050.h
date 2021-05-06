@@ -42,9 +42,8 @@ public:
     byte begin(int gyro_config_num = 1, int acc_config_num = 0);
     byte writeData(byte reg, byte data);
     byte readData(byte reg);
-    void calcOffsets(bool is_calc_gyro = true, bool is_calc_acc = true);
-    void calcGyroOffsets() { calcOffsets(true, false); }; // retro-compatibility with v1.0.0
-    void calcAccOffsets() { calcOffsets(false, true); };  // retro-compatibility with v1.0.0
+    void calibrate(bool is_calc_gyro = true, bool is_calc_acc = true);
+    void calcOffsets(float &accXoff, float &accYoff, float &accZoff, float &gyroXoff, float &gyroYoff, float &gyroZoff);
     byte setGyroConfig(int config_num);
     byte setAccConfig(int config_num);
     void setGyroOffsets(float x, float y, float z);

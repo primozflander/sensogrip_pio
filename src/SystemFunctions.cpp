@@ -14,9 +14,7 @@ void initIO()
 {
     Wire.begin();
     mpu.begin();
-    //mpu.calcOffsets();
-    mpu.setAccOffsets(0.02, -0.03, -0.07);
-    mpu.setGyroOffsets(-3.19, -1.05, -0.66);
+    // calibrateIMU();
     isBatteryOk();
     Serial.begin(115200);
     if (!BLE.begin())
@@ -28,6 +26,32 @@ void initIO()
     configureSensors();
     //disableUART();
     // ledPwr.off();
+}
+
+String stringSegToFloat(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = { 0, -1 };
+    int maxIndex = data.length() - 1;
+    for (int i = 0; i <= maxIndex && found <= index; i++) {
+        if (data.charAt(i) == separator || i == maxIndex) {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i+1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
+void calibrateIMU()
+{
+    float ax, ay, az, gx, gy, gz;
+    mpu.calcOffsets(ax ,ay, az, gx, gy, gz);
+    Serial.println("IMU offsets: " + String(ax) + " " + String(ay) + " " + String(az) + " " + String(gx) + " " + String(gy) + " " + String(gz));
+    Flash.put("imuConfig", String(ax) + " " + String(ay) + " " + String(az) + " " + String(gx) + " " + String(gy) + " " + String(gz));
+    Serial.println("IMU config written");
+    // mpu.setAccOffsets(ax, ay, az);
+    // mpu.setGyroOffsets(gx, gy, gz);
 }
 
 void isBatteryOk()
@@ -43,12 +67,6 @@ void isBatteryOk()
 
 void onCharging()
 {
-    // delay(100);
-    // uint32_t status = NRF_POWER->USBREGSTATUS;
-    // uint32_t status = NRF_POWER->EVENTS_USBDETECTED;
-    // Serial.print("status");
-    // Serial.println(status);
-    // nrf_power_usbregstatus_vbusdet_get();
     bool wasCharging = false;
     int currentColor = red;
     while (NRF_POWER->USBREGSTATUS == 3)
@@ -99,6 +117,7 @@ void saveConfigurationToFlash()
     Flash.put("angleCorrection", String(isAngleCorrected));
     Flash.put("tipSensorCorrectionFactor", String(tipSensor.getOutputCorrectionFactor()));
     Flash.put("fingerSensorCorrectionFactor", String(fingerSensor.getOutputCorrectionFactor()));
+    Flash.put("imuConfig", "0 0 0 0 0 0");
     DEBUG_PRINTLN("Configuration saved to flash");
 }
 
@@ -131,6 +150,22 @@ void readConfigurationFromFlash()
         isAngleCorrected = Flash.get("angleCorrection").toInt();
         tipSensor.setOutputCorrectionFactor(Flash.get("tipSensorCorrectionFactor").toDouble());
         fingerSensor.setOutputCorrectionFactor(Flash.get("fingerSensorCorrectionFactor").toDouble());
+        String imuConfig = Flash.get("imuConfig");
+        Serial.println("imuConfig: " + String(imuConfig));
+        // ax = stringSegToFloat(imuConfig, ' ', 0).toFloat();
+        // Serial.println(ax);
+        // ay = stringSegToFloat(imuConfig, ' ', 1).toFloat();
+        // Serial.println(ay);
+        //     az = stringSegToFloat(imuConfig, ' ', 0).toFloat();
+        // Serial.println(ax);
+        //     gx = stringSegToFloat(imuConfig, ' ', 0).toFloat();
+        // Serial.println(ax);
+        // gy = stringSegToFloat(imuConfig, ' ', 1).toFloat();
+        // Serial.println(ay);
+        // gz = stringSegToFloat(imuConfig, ' ', 5).toFloat();
+        // Serial.println(gz);
+        mpu.setAccOffsets(stringSegToFloat(imuConfig, ' ', 0).toFloat(), stringSegToFloat(imuConfig, ' ', 1).toFloat(), stringSegToFloat(imuConfig, ' ', 2).toFloat());
+        mpu.setGyroOffsets(stringSegToFloat(imuConfig, ' ', 3).toFloat(), stringSegToFloat(imuConfig, ' ', 4).toFloat(), stringSegToFloat(imuConfig, ' ', 5).toFloat());
         DEBUG_PRINTLN("Configuration read from flash");
         updateConfigurationChar();
     }

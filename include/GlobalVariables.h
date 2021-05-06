@@ -16,7 +16,7 @@
 #include "SensorFunctions.h"
 #include "SystemFunctions.h"
 
-#define DISPLAYED_DEVICE_NAME "SensoGrip#2"
+#define DISPLAYED_DEVICE_NAME "SensoGrip#test"
 
 union data_stream
 {
@@ -83,7 +83,7 @@ inline RangeAI fingerRangeAI(20, 500);
 inline const int SNZ_PWR = 4;
 inline const int SERIAL_SEND_INTERVAL = 50;
 inline const int BLE_SEND_INTERVAL = 100;
-inline const int SLEEP_TIMER = 30;
+inline const int SLEEP_TIMER = 600;
 inline const int LED_FEEDBACK_INTERVAL = 10;
 inline const int STATS_SAVE_INTERVAL = 60000;
 inline long loopStartTime = 0;

@@ -11,10 +11,10 @@ byte MPU6050::begin(int gyro_config_num, int acc_config_num)
 {
     writeData(SMPLRT_DIV_REGISTER, 0x00);
     writeData(CONFIG_REGISTER, 0x00);
-    // writeData(GYRO_CONFIG, 0x08);
-    // writeData(ACCEL_CONFIG, 0x00);
-    // writeData(PWR_MGMT_1, 0x01);
-    // writeData(PWR_MGMT_2, 0x80);
+    writeData(GYRO_CONFIG_REGISTER, 0x08);
+    writeData(ACCEL_CONFIG_REGISTER, 0x00);
+    writeData(PWR_MGMT_1_REGISTER, 0x01);
+    writeData(PWR_MGMT_2_REGISTER, 0x80);
     setGyroConfig(gyro_config_num);
     setAccConfig(acc_config_num);
     byte status = writeData(PWR_MGMT_1_REGISTER, 0x01);
@@ -128,7 +128,7 @@ void MPU6050::setFilterAccCoef(float acc_coeff)
     setFilterGyroCoef(1.0 - acc_coeff);
 }
 
-void MPU6050::calcOffsets(bool is_calc_gyro, bool is_calc_acc)
+void MPU6050::calibrate(bool is_calc_gyro, bool is_calc_acc)
 {
     if (is_calc_gyro)
     {
@@ -148,7 +148,7 @@ void MPU6050::calcOffsets(bool is_calc_gyro, bool is_calc_acc)
         ag[3] += gyroX;
         ag[4] += gyroY;
         ag[5] += gyroZ;
-        delay(1); // wait a little bit between 2 measurements
+        delay(1);
     }
     if (is_calc_acc)
     {
@@ -162,7 +162,31 @@ void MPU6050::calcOffsets(bool is_calc_gyro, bool is_calc_acc)
         gyroYoffset = ag[4] / CALIB_OFFSET_NB_MES;
         gyroZoffset = ag[5] / CALIB_OFFSET_NB_MES;
     }
-    Serial.println(String(accXoffset) + " " + String(accYoffset) + " " + String(accZoffset) + " " + String(gyroXoffset) + " " + String(gyroYoffset) + " " + String(gyroZoffset));
+    // Serial.println(String(accXoffset) + " " + String(accYoffset) + " " + String(accZoffset) + " " + String(gyroXoffset) + " " + String(gyroYoffset) + " " + String(gyroZoffset));
+}
+
+void MPU6050::calcOffsets(float &accXoff, float &accYoff, float &accZoff, float &gyroXoff, float &gyroYoff, float &gyroZoff)
+{
+    setGyroOffsets(0, 0, 0);
+    setAccOffsets(0, 0, 0);
+    float ag[6] = {0, 0, 0, 0, 0, 0}; // 3*acc, 3*gyro
+    for (int i = 0; i < CALIB_OFFSET_NB_MES; i++)
+    {
+        this->fetchData();
+        ag[0] += accX;
+        ag[1] += accY;
+        ag[2] += (accZ - 1.0);
+        ag[3] += gyroX;
+        ag[4] += gyroY;
+        ag[5] += gyroZ;
+        delay(1); // wait a little bit between 2 measurements
+    }
+    accXoff = ag[0] / CALIB_OFFSET_NB_MES;
+    accYoff = ag[1] / CALIB_OFFSET_NB_MES;
+    accZoff = ag[2] / CALIB_OFFSET_NB_MES;
+    gyroXoff = ag[3] / CALIB_OFFSET_NB_MES;
+    gyroYoff = ag[4] / CALIB_OFFSET_NB_MES;
+    gyroZoff = ag[5] / CALIB_OFFSET_NB_MES;
 }
 
 void MPU6050::fetchData()

@@ -7,7 +7,7 @@
 
 #define ANALOG_CONFIG
 
-/* Analog reference options 
+/* Analog reference options
  * Different possibilities available combining Reference and Gain
  */
 enum _AnalogReferenceMode
@@ -21,12 +21,12 @@ enum _AnalogReferenceMode
 /* Analog acquisition time options */
 enum _AnalogAcquisitionTime
 {
-  AT_3_US,         
-  AT_5_US,    
+  AT_3_US,
+  AT_5_US,
   AT_10_US, // Default value
   AT_15_US,
-  AT_20_US,  
-  AT_40_US  
+  AT_20_US,
+  AT_40_US
 };
 
 // Frequency of the board main oscillator
@@ -46,6 +46,8 @@ extern "C" unsigned int PINCOUNT_fn();
 #define NUM_DIGITAL_PINS     (21u)
 #define NUM_ANALOG_INPUTS    (8u)
 #define NUM_ANALOG_OUTPUTS   (0u)
+
+extern PinName digitalPinToPinName(pin_size_t P);
 
 // LEDs
 // ----
@@ -159,7 +161,7 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #define HAS_UNIQUE_ISERIAL_DESCRIPTOR
 #define BOARD_VENDORID		0x2341
 #define BOARD_PRODUCTID		0x805a
-#define BOARD_NAME			"Nano 33 BLE"
+#define BOARD_NAME			"Sensogrip"
 
 #define DFU_MAGIC_SERIAL_ONLY_RESET   0xb0
 
