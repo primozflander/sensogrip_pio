@@ -13,7 +13,7 @@ private:
     int lowerRange;
     long average = 0;
     long total = 0;
-    float filterPar = 0.9;
+    float filterPar = 0.5;
     unsigned long updateInterval;
     unsigned long previousMillis = 0;
     long calculateMovingAverage(int input);
