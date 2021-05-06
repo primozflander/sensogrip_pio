@@ -8,5 +8,6 @@ private:
 public:
     TipSensor(int pin, int referenceValue, int referenceRange);
     void setPitch(float angle);
+    float getPitch();
     int getValue();
 };

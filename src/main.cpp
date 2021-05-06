@@ -3,21 +3,24 @@
 
 void setup()
 {
-    // while (!Serial);
-    
+    //while (!Serial);
     initIO();
-    // saveConfigurationToFlash();
+    //tipSensor.setOutputCorrectionFactor(2.44);
+    //fingerSensor.setOutputCorrectionFactor(0.56);
+    //saveConfigurationToFlash();
     readConfigurationFromFlash();
 }
 
 void loop()
 {
-    onCharging();
+    //onCharging();
+    loopStartTime = millis();
+    Serial.println(String(mpu.getAngX()) + " " + String(mpu.getAngY()) + " " + String(mpu.getAngZ()));
     readSensors();
     showLedFeedback();
     sendAndReceiveBLEData();
     //sendSensorData();
     updateStatistics();
-    sleepToSavePower();
     powerOffFunctionality();
+    sleepToSavePower();
 }

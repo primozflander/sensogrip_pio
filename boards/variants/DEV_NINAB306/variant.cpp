@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "pinDefinitions.h"
 
 /* wiring_analog variables definition */
 /* Flag to indicate whether the ADC config has been changed from the default one */
@@ -142,7 +143,7 @@ void initVariant() {
 
   // Errata Nano33BLE - I2C pullup is on SWO line, need to disable TRACE
   // was being enabled by nrfx_clock_anomaly_132
-  CoreDebug->DEMCR = 0;
+  //CoreDebug->DEMCR = 0;
   NRF_CLOCK->TRACECONFIG = 0;
 
   // FIXME: bootloader enables interrupt on COMPARE[0], which we don't handle

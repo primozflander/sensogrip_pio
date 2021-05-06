@@ -37,7 +37,7 @@ void sendBLEData()
         dataStream.fingerSensorValue = fingerSensor.getValue();
         dataStream.angle = (int)mpu.getAngY();
         dataStream.speed = (int)(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
-        dataStream.batteryLevel = batteryLevel.getFilteredValue();
+        dataStream.batteryLevel = batteryLevel.getMedian();
         dataStream.minutesInRange = Stats.getMinutesInRange();
         dataStream.minutesInUse = Stats.getMinutesInUse();
         dataStream.tipSensorUpperRange = tipSensor.getUpperRange();
@@ -45,7 +45,37 @@ void sendBLEData()
         dataStream.fingerSensorUpperRange = fingerSensor.getUpperRange();
         dataStream.fingerSensorLowerRange = fingerSensor.getLowerRange();
         dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
-        previousBLEMillis += BLE_SEND_INTERVAL;
+        previousBLEMillis = millis();
+
+        // dataStream.timeStamp = millis() / 100;
+        // dataStream.tipSensorValue = tipSensor.getValue();
+        // dataStream.fingerSensorValue = tipSensor.getSensorValue();
+        // dataStream.angle = tipSensor.getRawValue();
+        // dataStream.speed = tipSensor.getPitch();
+        // dataStream.batteryLevel = batteryLevel.getMedian();
+        // dataStream.minutesInRange = Stats.getMinutesInRange();
+        // dataStream.minutesInUse = Stats.getMinutesInUse();
+        // dataStream.tipSensorUpperRange = tipSensor.getUpperRange();
+        // dataStream.tipSensorLowerRange = tipSensor.getLowerRange();
+        // dataStream.fingerSensorUpperRange = fingerSensor.getUpperRange();
+        // dataStream.fingerSensorLowerRange = fingerSensor.getLowerRange();
+        // dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
+        // previousBLEMillis = millis();
+
+        // dataStream.timeStamp = millis() / 100;
+        // dataStream.tipSensorValue = fingerSensor.getValue();
+        // dataStream.fingerSensorValue = fingerSensor.getSensorValue();
+        // dataStream.angle = fingerSensor.getRawValue();
+        // dataStream.speed = tipSensor.getPitch();
+        // dataStream.batteryLevel = batteryLevel.getMedian();
+        // dataStream.minutesInRange = Stats.getMinutesInRange();
+        // dataStream.minutesInUse = Stats.getMinutesInUse();
+        // dataStream.tipSensorUpperRange = tipSensor.getUpperRange();
+        // dataStream.tipSensorLowerRange = tipSensor.getLowerRange();
+        // dataStream.fingerSensorUpperRange = fingerSensor.getUpperRange();
+        // dataStream.fingerSensorLowerRange = fingerSensor.getLowerRange();
+        // dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
+        // previousBLEMillis = millis();
     }
 }
 
