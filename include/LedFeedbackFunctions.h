@@ -7,4 +7,5 @@ void showLedAllSensorsInRange();
 void showLedAnySensorInRange();
 void showLedAnySensorInRangeTwoColors();
 void showLedAllSensorsInRangeWithOverpressureColor();
+void showLedNegativeFeedback();
 void calculateOptimalRange();

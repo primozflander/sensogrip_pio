@@ -16,7 +16,7 @@ void initIO()
     mpu.begin();
     // calibrateIMU();
     isBatteryOk();
-    Serial.begin(115200);
+    Serial.begin(9600);
     if (!BLE.begin())
     {
         DEBUG_PRINTLN("starting BLE failed!");
@@ -97,7 +97,7 @@ void onCharging()
 void saveConfigurationToFlash()
 {
     Flash.put("positiveFeedback", String(isPositiveFeedback));
-    Flash.put("ledAssistance", String(ledAssistance));
+    Flash.put("ledAssistance", String(ledFeedbackType));
     Flash.put("refTipValue", String(tipSensor.getRefValue()));
     Flash.put("refTipRange", String(tipSensor.getRefRange()));
     Flash.put("tipSensorOffset", String(tipSensor.getOffset()));
@@ -130,7 +130,7 @@ void readConfigurationFromFlash()
     else
     {
         isPositiveFeedback = ("1" == Flash.get("positiveFeedback")) ? true : false;
-        ledAssistance = Flash.get("ledAssistance").toInt();
+        ledFeedbackType = Flash.get("ledAssistance").toInt();
         tipSensor.setRefValue(Flash.get("refTipValue").toInt());
         tipSensor.setRefRange(Flash.get("refTipRange").toInt());
         tipSensor.setOffset(Flash.get("tipSensorOffset").toInt());

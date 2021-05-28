@@ -44,38 +44,14 @@ void sendBLEData()
         dataStream.tipSensorLowerRange = tipSensor.getLowerRange();
         dataStream.fingerSensorUpperRange = fingerSensor.getUpperRange();
         dataStream.fingerSensorLowerRange = fingerSensor.getLowerRange();
+        dataStream.accX = mpu.getAccX();
+        dataStream.accY = mpu.getAccY();
+        dataStream.accZ = mpu.getAccZ();
+        dataStream.gyroX = mpu.getGyroX();
+        dataStream.gyroY = mpu.getGyroY();
+        dataStream.gyroZ = mpu.getGyroZ();
         dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
         previousBLEMillis = millis();
-
-        // dataStream.timeStamp = millis() / 100;
-        // dataStream.tipSensorValue = tipSensor.getValue();
-        // dataStream.fingerSensorValue = tipSensor.getSensorValue();
-        // dataStream.angle = tipSensor.getRawValue();
-        // dataStream.speed = tipSensor.getPitch();
-        // dataStream.batteryLevel = batteryLevel.getMedian();
-        // dataStream.minutesInRange = Stats.getMinutesInRange();
-        // dataStream.minutesInUse = Stats.getMinutesInUse();
-        // dataStream.tipSensorUpperRange = tipSensor.getUpperRange();
-        // dataStream.tipSensorLowerRange = tipSensor.getLowerRange();
-        // dataStream.fingerSensorUpperRange = fingerSensor.getUpperRange();
-        // dataStream.fingerSensorLowerRange = fingerSensor.getLowerRange();
-        // dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
-        // previousBLEMillis = millis();
-
-        // dataStream.timeStamp = millis() / 100;
-        // dataStream.tipSensorValue = fingerSensor.getValue();
-        // dataStream.fingerSensorValue = fingerSensor.getSensorValue();
-        // dataStream.angle = fingerSensor.getRawValue();
-        // dataStream.speed = tipSensor.getPitch();
-        // dataStream.batteryLevel = batteryLevel.getMedian();
-        // dataStream.minutesInRange = Stats.getMinutesInRange();
-        // dataStream.minutesInUse = Stats.getMinutesInUse();
-        // dataStream.tipSensorUpperRange = tipSensor.getUpperRange();
-        // dataStream.tipSensorLowerRange = tipSensor.getLowerRange();
-        // dataStream.fingerSensorUpperRange = fingerSensor.getUpperRange();
-        // dataStream.fingerSensorLowerRange = fingerSensor.getLowerRange();
-        // dataStreamChar.writeValue(dataStream.bytes, sizeof dataStream.bytes);
-        // previousBLEMillis = millis();
     }
 }
 
@@ -120,10 +96,11 @@ void getBLEData()
         Flash.put("positiveFeedback", String(isPositiveFeedback));
         rgbLed.off();
         DEBUG_PRINTLN("feedback written: " + String(configurationState.feedback));
-        ledAssistance = constrain(configurationState.ledAssistance, 0, 4);
-        Flash.put("ledAssistance", String(ledAssistance));
+        //ledFeedbackType = constrain(configurationState.ledAssistance, 0, 5);
+        ledFeedbackType = configurationState.ledAssistance;
+        Flash.put("ledAssistance", String(ledFeedbackType));
         rgbLed.off();
-        DEBUG_PRINTLN("ledAssistance written: " + String(configurationState.ledAssistance));
+        DEBUG_PRINTLN("ledFeedbackType written: " + String(configurationState.ledAssistance));
         isAiRangeAssisted = constrain(configurationState.aiRangeAssistance, 0, 1);
         DEBUG_PRINTLN("ai written: " + String(configurationState.aiRangeAssistance));
         if (isAiRangeAssisted != 1)
@@ -169,7 +146,7 @@ void updateConfigurationChar()
     configurationState.fingerSensorUpperRange = fingerSensor.getRefValue() + fingerSensor.getRefRange();
     configurationState.fingerSensorLowerRange = fingerSensor.getRefValue() - fingerSensor.getRefRange();
     configurationState.feedback = isPositiveFeedback;
-    configurationState.ledAssistance = ledAssistance;
+    configurationState.ledAssistance = ledFeedbackType;
     configurationState.aiRangeAssistance = isAiRangeAssisted;
     configurationState.angleCorection = isAngleCorrected;
     configurationState.tipPressureReleaseDelay = tipPressureReleaseDelay;

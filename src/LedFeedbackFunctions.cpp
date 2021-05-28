@@ -9,6 +9,7 @@ void showLedFeedback()
         anySensorInRange,
         anySensorInRangeTwoColors,
         allSensorsInRangeWithOverpressureColor,
+        negativeFeedback,
     };
 
     static unsigned long previousLedFeedbackMillis = 0;
@@ -16,7 +17,7 @@ void showLedFeedback()
     {
         if (isAiRangeAssisted)
             calculateOptimalRange();
-        switch (ledAssistance)
+        switch (ledFeedbackType)
         {
         case noFeedback:
             rgbLed.displayNoColor();
@@ -32,6 +33,9 @@ void showLedFeedback()
             break;
         case allSensorsInRangeWithOverpressureColor:
             showLedAllSensorsInRangeWithOverpressureColor();
+            break;
+        case negativeFeedback:
+            showLedNegativeFeedback();
             break;
         default:
             rgbLed.off();
@@ -153,6 +157,26 @@ void showLedAllSensorsInRangeWithOverpressureColor()
     else
     {
         rgbLed.displayNoColor();
+        ledFeedbackCounter = 0;
+    }
+}
+
+void showLedNegativeFeedback()
+{
+    static int ledFeedbackCounter = 0;
+    if (tipSensor.isInRange() && fingerSensor.isInRange())
+    {
+        ledFeedbackCounter += 5;
+        ledFeedbackCounter = min(ledFeedbackCounter, tipPressureReleaseDelay);
+        rgbLed.displayNoColor();
+    }
+    else if (tipSensor.isUnderRange() && ledFeedbackCounter > 0)
+    {
+        ledFeedbackCounter -= 1;
+    }
+    else
+    {
+        rgbLed.displayNokColor();
         ledFeedbackCounter = 0;
     }
 }

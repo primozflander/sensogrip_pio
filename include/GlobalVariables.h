@@ -34,8 +34,14 @@ union data_stream
         uint16_t tipSensorLowerRange;
         uint16_t fingerSensorUpperRange;
         uint16_t fingerSensorLowerRange;
+        float_t accX;
+        float_t accY;
+        float_t accZ;
+        float_t gyroX;
+        float_t gyroY;
+        float_t gyroZ;
     };
-    uint8_t bytes[12 * sizeof(uint16_t)];
+    uint8_t bytes[12 * sizeof(uint16_t) + 6 * sizeof(float_t)];
 };
 
 union configuration_state
@@ -91,5 +97,5 @@ inline long loopEndTime = 0;
 inline bool isPositiveFeedback = true;
 inline bool isAiRangeAssisted = false;
 inline bool isAngleCorrected = true;
-inline int ledAssistance = 4;
+inline int ledFeedbackType = 4;
 inline int tipPressureReleaseDelay = 80;
