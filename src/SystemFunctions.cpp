@@ -24,8 +24,6 @@ void initIO()
     batteryLevel.setUpdateInterval(75);
     BLEconfig();
     configureSensors();
-    //disableUART();
-    // ledPwr.off();
 }
 
 String stringSegToFloat(String data, char separator, int index)
@@ -50,8 +48,6 @@ void calibrateIMU()
     Serial.println("IMU offsets: " + String(ax) + " " + String(ay) + " " + String(az) + " " + String(gx) + " " + String(gy) + " " + String(gz));
     Flash.put("imuConfig", String(ax) + " " + String(ay) + " " + String(az) + " " + String(gx) + " " + String(gy) + " " + String(gz));
     Serial.println("IMU config written");
-    // mpu.setAccOffsets(ax, ay, az);
-    // mpu.setGyroOffsets(gx, gy, gz);
 }
 
 void isBatteryOk()
@@ -59,7 +55,6 @@ void isBatteryOk()
     if (!(batteryLevel.getSensorValue() > 0))
     {
         mpu.setAccWakeUp();
-        // nrf_gpio_cfg_sense_input(P1_11, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
         nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW); // sensogrip board D2
         NRF_POWER->SYSTEMOFF = 1;
     }
@@ -71,7 +66,6 @@ void onCharging()
     int currentColor = red;
     while (NRF_POWER->USBREGSTATUS == 3)
     {
-        // rgbLed.setLedColorHsvWithTransition(map(batteryLevel.getSensorValue(), 0, 100, 359, 120));
         if (batteryLevel.getSensorValue() > 98)
         {
             rgbLed.setLedColorHsvWithTransition(green, 1.0, 0.1);
@@ -98,11 +92,11 @@ void saveConfigurationToFlash()
 {
     Flash.put("positiveFeedback", String(isPositiveFeedback));
     Flash.put("ledAssistance", String(ledFeedbackType));
-    Flash.put("refTipValue", String(tipSensor.getRefValue()));
-    Flash.put("refTipRange", String(tipSensor.getRefRange()));
+    Flash.put("tipUpperRange", String(tipSensor.getUpperRange()));
+    Flash.put("tipLowerRange", String(tipSensor.getLowerRange()));
     Flash.put("tipSensorOffset", String(tipSensor.getOffset()));
-    Flash.put("refFingerValue", String(fingerSensor.getRefValue()));
-    Flash.put("refFingerRange", String(fingerSensor.getRefRange()));
+    Flash.put("fingerUpperRange", String(fingerSensor.getUpperRange()));
+    Flash.put("fingerLowerRange", String(fingerSensor.getLowerRange()));
     Flash.put("fingerSensorOffset", String(fingerSensor.getOffset()));
     Flash.put("tipPressureReleaseDelay", String(tipPressureReleaseDelay));
     Flash.put("ledTurnOnSpeed", String(rgbLed.getLedTurnOnSpeed()));
@@ -131,11 +125,11 @@ void readConfigurationFromFlash()
     {
         isPositiveFeedback = ("1" == Flash.get("positiveFeedback")) ? true : false;
         ledFeedbackType = Flash.get("ledAssistance").toInt();
-        tipSensor.setRefValue(Flash.get("refTipValue").toInt());
-        tipSensor.setRefRange(Flash.get("refTipRange").toInt());
+        tipSensor.setUpperRange(Flash.get("tipUpperRange").toInt());
+        tipSensor.setLowerRange(Flash.get("tipLowerRange").toInt());
         tipSensor.setOffset(Flash.get("tipSensorOffset").toInt());
-        fingerSensor.setRefValue(Flash.get("refFingerValue").toInt());
-        fingerSensor.setRefRange(Flash.get("refFingerRange").toInt());
+        fingerSensor.setUpperRange(Flash.get("fingerUpperRange").toInt());
+        fingerSensor.setLowerRange(Flash.get("fingerLowerRange").toInt());
         fingerSensor.setOffset(Flash.get("fingerSensorOffset").toInt());
         tipPressureReleaseDelay = Flash.get("tipPressureReleaseDelay").toInt();
         rgbLed.setLedTurnOnSpeed(Flash.get("ledTurnOnSpeed").toInt());
@@ -151,23 +145,13 @@ void readConfigurationFromFlash()
         tipSensor.setOutputCorrectionFactor(Flash.get("tipSensorCorrectionFactor").toDouble());
         fingerSensor.setOutputCorrectionFactor(Flash.get("fingerSensorCorrectionFactor").toDouble());
         String imuConfig = Flash.get("imuConfig");
-        Serial.println("imuConfig: " + String(imuConfig));
-        // ax = stringSegToFloat(imuConfig, ' ', 0).toFloat();
-        // Serial.println(ax);
-        // ay = stringSegToFloat(imuConfig, ' ', 1).toFloat();
-        // Serial.println(ay);
-        //     az = stringSegToFloat(imuConfig, ' ', 0).toFloat();
-        // Serial.println(ax);
-        //     gx = stringSegToFloat(imuConfig, ' ', 0).toFloat();
-        // Serial.println(ax);
-        // gy = stringSegToFloat(imuConfig, ' ', 1).toFloat();
-        // Serial.println(ay);
-        // gz = stringSegToFloat(imuConfig, ' ', 5).toFloat();
-        // Serial.println(gz);
         mpu.setAccOffsets(stringSegToFloat(imuConfig, ' ', 0).toFloat(), stringSegToFloat(imuConfig, ' ', 1).toFloat(), stringSegToFloat(imuConfig, ' ', 2).toFloat());
         mpu.setGyroOffsets(stringSegToFloat(imuConfig, ' ', 3).toFloat(), stringSegToFloat(imuConfig, ' ', 4).toFloat(), stringSegToFloat(imuConfig, ' ', 5).toFloat());
-        DEBUG_PRINTLN("Configuration read from flash");
         updateConfigurationChar();
+        DEBUG_PRINTLN("Configuration read from flash");
+        DEBUG_PRINTLN("imuConfig: " + String(imuConfig));
+        DEBUG_PRINTLN("sensor correction factors: " + String(tipSensor.getOutputCorrectionFactor()) + " " + String(fingerSensor.getOutputCorrectionFactor()));
+        
     }
 }
 
@@ -209,7 +193,6 @@ void powerOffFunctionality()
         ledPwr.off();
         BLE.end();
         mpu.setAccWakeUp();
-        //nrf_gpio_cfg_sense_input(P1_11, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
         nrf_gpio_cfg_sense_input(P0_19, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW); // sensogrip board D2
         DEBUG_PRINTLN("Power off");
         NRF_POWER->SYSTEMOFF = 1;
@@ -222,14 +205,4 @@ void sleepToSavePower()
     if (diff < 10)
         delay(10 - diff);
     // DEBUG_PRINTLN(String("loop ms: ") + diff);
-}
-
-void disableUART()
-{
-    NRF_UARTE0->TASKS_STOPTX = 1;
-    NRF_UARTE0->TASKS_STOPRX = 1;
-    NRF_UARTE0->ENABLE = 0;
-    NRF_UART0->TASKS_STOPTX = 1;
-    NRF_UART0->TASKS_STOPRX = 1;
-    NRF_UART0->ENABLE = 0;
 }
