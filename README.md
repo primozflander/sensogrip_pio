@@ -78,9 +78,9 @@ Distributed under the FH Campus Wien License.
 
 ## Contact
 
-Primoz Flander: primoz.flander@fh-campuswien.ac.at
+Primoz Flander: [primoz.flander@fh-campuswien.ac.at](<mailto:primoz.flander@fh-campuswien.ac.at>)
 
-Project Link: [SensoGrip](https://github.com/primozflander/sensogrip_pio)
+Project Link: [SensoGrip](https://github.com/primozflander/sensogrip_pio), [SensoGrip App](https://github.com/primozflander/sensogrip_app_flutter)
 
 ## Acknowledgements
 * [Gernot Korak](https://www.fh-campuswien.ac.at/forschung/forschende-von-a-z/personendetails/gernot-korak.html)
