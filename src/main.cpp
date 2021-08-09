@@ -3,7 +3,7 @@
 
 void setup()
 {
-    while (!Serial);
+    // while (!Serial);
     initIO();
     //saveConfigurationToFlash();
     readConfigurationFromFlash();

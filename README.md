@@ -1,6 +1,6 @@
 # SensoGrip
 
-Repository consists of software and brief descpription of each individual step to successfuly set up Sensogrip pencil.
+Repository consists of software and brief description of each individual step to successfuly set up Sensogrip pencil.
 
 **Table of Contents**
 
@@ -12,13 +12,10 @@ Repository consists of software and brief descpription of each individual step t
   * [Installation](#installation)
     + [Uploading bootloader](#uploading-bootloader)
     + [Uploading software via PlatformIO](#Uploading-software-via-PlatformIO)
-    + [Uploading software via Arduino IDE](#Uploading-software-via-Arduino-IDE)
-  * [Usage](#usage)
   * [License](#license)
   * [Contact](#contact)
   * [Acknowledgements](#acknowledgements)
 
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
 Sensogrip pencil was developed as a therapeutical help tool for children with graphomotoric difficulties. It consists of two sensors: one for measuring tip pressure, and the second one for measuring finger pressure. User is able to get feedback via built-in RGB led or via mobile app.
@@ -40,9 +37,6 @@ It features:
 * [Visual Studio Code](https://code.visualstudio.com)
 * [Segger](https://www.segger.com/)
 
-
-
-<!-- GETTING STARTED -->
 ## Getting Started
 
 Follow this steps to upload firmware and software to your Sensogrip pencil.
@@ -60,52 +54,34 @@ Follow this steps to upload firmware and software to your Sensogrip pencil.
 ### Uploading bootloader
 
 1. Install [JFlashSPI Software](https://www.segger.com/downloads/jlink)
-2. [Connect Segger debugger to Sensogrip board via SWD pins](http://djynet.net/?p=969)
-3. Start `JFlashLite.exe` and upload `bootloader.hex` located in the > _utils/bootloader_ folder
+2. [Connect Segger debugger to Sensogrip board via SWD pins with help of adapter](http://djynet.net/?p=969)
 
-![jflashlite](documentation/images/jflashlite.png)
+![swd](docs/images/swd.png)
+
+3. Start `JFlashLite.exe` and upload `bootloader.hex` located in the _utils/bootloader_ folder. Make sure that the board is connected to the power supply when uploading the bootloader.
+
+![jflashlite](docs/images/jflashlite.png)
 
 ### Uploading software via PlatformIO
 
 1. Install [PlatformIO](https://platformio.org)
-2. Upload the program
+2. Replace `boards.txt` file on the path: _C:\Users\your_username\.platformio\packages\framework-arduino-mbed_ with file `boards.txt` from project's `boards` folder
+3. Copy SENSOGRIP_NINA306 folder from project's `boards/variants` folder and paste it to the folder on the path: _C:\Users\your_username\.platformio\packages\framework-arduino-mbed\variants_
 
+![variants](docs/images/variants.png)
 
-### Uploading software via Arduino IDE
+4. Upload the program
 
-1. Install [Arduino IDE](https://www.arduino.cc/en/guide/windows)
-2. Open Arduino IDE, go to File > Preferences and enter
-> _https://raw.githubusercontent.com/primozflander/custom_boards/master/package_sensogrip_index.json_
-into the “Additional Board Manager URLs”.
-3. Go to Tools > Board > Boards Manager. Search for `Sensogrip` and install the boards.
-4. Select board `SensoGrip NINA B306` and upload the program.
-
-
-
-<!-- USAGE EXAMPLES -->
-## Documentation
-
-_For documentation, please refer to the [Documentation](/documentation)_
-
-
-
-<!-- LICENSE -->
 ## License
 
-Distributed under the FH Campus Wien License. See `LICENSE` for more information.
+Distributed under the FH Campus Wien License.
 
-
-
-<!-- CONTACT -->
 ## Contact
 
 Primoz Flander: primoz.flander@fh-campuswien.ac.at
 
-Project Link: [SensoGrip](https://github.com/primozflander/senso-grip)
+Project Link: [SensoGrip](https://github.com/primozflander/sensogrip_pio)
 
-
-
-<!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 * [Gernot Korak](https://www.fh-campuswien.ac.at/forschung/forschende-von-a-z/personendetails/gernot-korak.html)
 * [Sebastian Geyer](https://www.fh-campuswien.ac.at/forschung/forschende-von-a-z/personendetails/sebastian-geyer.html)
