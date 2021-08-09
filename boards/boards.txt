@@ -264,7 +264,6 @@ pico.bootloader.tool=openocd
 pico.bootloader.config=-f target/rp2040.cfg
 pico.bootloader.programmer=-f interface/cmsis-dap.cfg
 
-
 ##############################################################
 
 sensogrip.name=SensoGrip NINA B306
@@ -288,8 +287,8 @@ sensogrip.compiler.mbed.cxxflags={build.variant.path}/cxxflags.txt
 sensogrip.compiler.mbed.includes={build.variant.path}/includes.txt
 sensogrip.compiler.mbed.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 sensogrip.compiler.mbed="{build.variant.path}/libs/libmbed.a" "{build.variant.path}/libs/libcc_310_core.a" "{build.variant.path}/libs/libcc_310_ext.a" "{build.variant.path}/libs/libcc_310_trng.a"
-sensogrip.vid.0=0x8888
-sensogrip.pid.0=0x8888
+sensogrip.vid.0=0x2341
+sensogrip.pid.0=0x005a
 sensogrip.vid.1=0x2341
 sensogrip.pid.1=0x805a
 
@@ -330,8 +329,8 @@ ninaDevBoard.compiler.mbed.cxxflags={build.variant.path}/cxxflags.txt
 ninaDevBoard.compiler.mbed.includes={build.variant.path}/includes.txt
 ninaDevBoard.compiler.mbed.extra_ldflags=-lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
 ninaDevBoard.compiler.mbed="{build.variant.path}/libs/libmbed.a" "{build.variant.path}/libs/libcc_310_core.a" "{build.variant.path}/libs/libcc_310_ext.a" "{build.variant.path}/libs/libcc_310_trng.a"
-ninaDevBoard.0=0x9999
-ninaDevBoard.0=0x9999
+ninaDevBoard.0=0x2341
+ninaDevBoard.0=0x005a
 ninaDevBoard.vid.1=0x2341
 ninaDevBoard.pid.1=0x805a
 
@@ -348,7 +347,5 @@ ninaDevBoard.bootloader.extra_action.preflash=echo INFO:removed_mass-erase
 ninaDevBoard.bootloader.config=-f target/nrf52.cfg
 ninaDevBoard.bootloader.programmer=-f interface/cmsis-dap.cfg
 ninaDevBoard.bootloader.file=nano33ble/bootloader.hex
-
-
 
 

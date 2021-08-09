@@ -1,16 +1,10 @@
 #include "FingerSensor.h"
-FingerSensor::FingerSensor(int pin, int referenceValue, int referenceRange) : Sensor::Sensor(pin, referenceValue, referenceRange)
+FingerSensor::FingerSensor(int pin, int upperRange, int lowerRange) : Sensor::Sensor(pin, upperRange, lowerRange)
 {
 }
 
 int FingerSensor::getSensorValue()
 {
-    // sensogrip 3V, 2k
-    // long input = map(analogRead(pin), 0, 1023, 1, 2999);
-    // long output = ((input * 50) / (2999 - input) - offset) * outputCorrectionFactor;
-    // return output = (int)(!inverse) ? output : -output;
-
-    // sensogrip 3V, 2k
     double output = (50 * exp(((analogRead(pin) - offset) + 1.55) / 86.91) - 50) * outputCorrectionFactor;
     return output = (int)(!inverse) ? output : -output;
 }
@@ -19,3 +13,23 @@ int FingerSensor::getValue()
 {
     return (int)max(filteredValue, 0);
 }
+
+// void FingerSensor::setTempUpperRange(int value)
+// {
+//     tempUpperRange = value;
+// }
+
+// void FingerSensor::setTempLowerRange(int value)
+// {
+//     tempLowerRange = value;
+// }
+
+// int FingerSensor::getTempUpperRange()
+// {
+//     return tempUpperRange;
+// }
+
+// int FingerSensor::getTempLowerRange()
+// {
+//     return tempLowerRange;
+// }

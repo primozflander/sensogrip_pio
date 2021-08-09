@@ -26,8 +26,12 @@ void sendSensorData()
     static unsigned long previousSendMillis = 0;
     if (millis() - previousSendMillis >= SERIAL_SEND_INTERVAL)
     {
+        // String payload = String(millis()) + " " + String(tipSensor.getValue()) + " " + String(fingerSensor.getValue()) + " " + String(batteryLevel.getMedian()) + " " +
+        //                  String(mpu.getAngY()) + " " + String(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
         String payload = String(millis()) + " " + String(tipSensor.getValue()) + " " + String(fingerSensor.getValue()) + " " + String(batteryLevel.getMedian()) + " " +
-                         String(mpu.getAngY()) + " " + String(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ()));
+                         String(mpu.getAngY()) + " " + String(abs(mpu.getGyroX()) + abs(mpu.getGyroY()) + abs(mpu.getGyroZ())) + " " + 
+                         String(mpu.getAccX()) + " " + String(mpu.getAccY()) + " " + String(mpu.getAccZ()) + " " + 
+                         String(mpu.getGyroX()) + " " + String(mpu.getGyroY()) + " " + String(mpu.getGyroZ());
         Serial.println(payload);
         previousSendMillis += SERIAL_SEND_INTERVAL;
     }

@@ -16,7 +16,8 @@
 #include "SensorFunctions.h"
 #include "SystemFunctions.h"
 
-#define DISPLAYED_DEVICE_NAME "SensoGrip#test"
+#define DISPLAYED_DEVICE_NAME "SensoGrip#dev"
+#define HARDWARE_VERSION 3
 
 union data_stream
 {
@@ -34,8 +35,14 @@ union data_stream
         uint16_t tipSensorLowerRange;
         uint16_t fingerSensorUpperRange;
         uint16_t fingerSensorLowerRange;
+        float_t accX;
+        float_t accY;
+        float_t accZ;
+        float_t gyroX;
+        float_t gyroY;
+        float_t gyroZ;
     };
-    uint8_t bytes[12 * sizeof(uint16_t)];
+    uint8_t bytes[12 * sizeof(uint16_t) + 6 * sizeof(float_t)];
 };
 
 union configuration_state
@@ -57,21 +64,26 @@ union configuration_state
         uint16_t ledFingerAssistanceColor;
         uint16_t ledOkColor;
         uint16_t ledNokColor;
+        uint16_t hwVersion;
+        uint16_t tipSensorCorrectionFactor;
+        uint16_t fingerSensorCorrectionFactor;
+
     };
-    uint8_t bytes[15 * sizeof(uint16_t)];
+    uint8_t bytes[18 * sizeof(uint16_t)];
 };
 
 inline union data_stream dataStream;
 inline union configuration_state configurationState;
 inline BLEService sensoGripService("1111");
 inline BLEBoolCharacteristic calibrateChar("2014", BLEWrite);
+inline BLEBoolCharacteristic calibrateIMUChar("2015", BLEWrite);
 inline BLEBoolCharacteristic minutesPassedInUseChar("2017", BLEWrite);
 inline BLEBoolCharacteristic minutesPassedInRangeChar("2018", BLEWrite);
 inline BLECharacteristic dataStreamChar("3004", BLERead | BLENotify, sizeof dataStream.bytes);
 inline BLECharacteristic configurationStateChar("3005", BLERead | BLEWrite, sizeof configurationState.bytes);
 inline MPU6050 mpu(Wire);
-inline TipSensor tipSensor(A0, 100, 70);
-inline FingerSensor fingerSensor(A1, 100, 70);
+inline TipSensor tipSensor(A0, 170, 30);
+inline FingerSensor fingerSensor(A1, 170, 30);
 inline BatterySensor batteryLevel(A2);
 inline RGBLed rgbLed(9, 10, 11, false);
 inline Led ledBuiltIn(LED_BUILTIN);
@@ -91,5 +103,5 @@ inline long loopEndTime = 0;
 inline bool isPositiveFeedback = true;
 inline bool isAiRangeAssisted = false;
 inline bool isAngleCorrected = true;
-inline int ledAssistance = 4;
+inline int ledFeedbackType = 4;
 inline int tipPressureReleaseDelay = 80;

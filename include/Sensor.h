@@ -8,7 +8,7 @@ private:
     int inputValue = 0;
     int readIndex = 0;
     int referenceValue;
-    int referenceRange;
+    // int referenceRange;
     int upperRange;
     int lowerRange;
     long average = 0;
@@ -27,7 +27,7 @@ protected:
     float outputCorrectionFactor = 1;
 
 public:
-    Sensor(int pin, int referenceValue = 100, int referenceRange = 50, unsigned long updateInterval = 10);
+    Sensor(int pin, int upperRange = 170, int lowerRange = 30, unsigned long updateInterval = 10);
     void init();
     void calibrate();
     virtual int getSensorValue();
@@ -40,7 +40,7 @@ public:
     int getAverage();
     int getMedian();
     int getRefValue();
-    int getRefRange();
+    // int getRefRange();
     int getUpperRange();
     int getLowerRange();
     int getOffset();
@@ -50,7 +50,7 @@ public:
     void setUpdateInterval(int intervalMs);
     void setInverse(bool inverseOutput);
     void setRefValue(int reference);
-    void setRefRange(int range);
+    // void setRefRange(int range);
     void setUpperRange(int range);
     void setLowerRange(int range);
     void setOffset(int sensorOffset);

@@ -53,7 +53,5 @@ void RangeAI::showData()
     Serial.print(" ");
     Serial.print(lowerRange);
     Serial.print(" ");
-    Serial.print(upperRange);
-    Serial.print(" ");
-    Serial.println(0);
+    Serial.println(upperRange);
 }

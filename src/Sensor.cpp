@@ -16,19 +16,21 @@ float Sensor::calculateFilteredValue(int input)
     return filteredValue;
 }
 
-Sensor::Sensor(int pin, int referenceValue, int referenceRange, unsigned long updateInterval)
+Sensor::Sensor(int pin, int upperRange, int lowerRange, unsigned long updateInterval)
 {
     this->pin = pin;
-    this->referenceValue = referenceValue;
-    this->referenceRange = referenceRange;
+    this->upperRange = upperRange;
+    this->lowerRange = lowerRange;
     this->updateInterval = updateInterval;
     init();
 }
 
 void Sensor::init()
 {
-    upperRange = referenceValue + referenceRange;
-    lowerRange = referenceValue - referenceRange;
+    // referenceValue = (upperRange + lowerRange) / 2;
+    // referenceRange = (upperRange - lowerRange) / 2;
+    // upperRange = referenceValue + referenceRange;
+    // lowerRange = referenceValue - referenceRange;
     for (int i = 0; i < numAvgReadings; i++)
         readings[i] = 0;
     nrf_saadc_oversample_set(NRF_SAADC_OVERSAMPLE_8X);
@@ -137,10 +139,10 @@ int Sensor::getRefValue()
     return referenceValue;
 }
 
-int Sensor::getRefRange()
-{
-    return referenceRange;
-}
+// int Sensor::getRefRange()
+// {
+//     return referenceRange;
+// }
 
 int Sensor::getUpperRange()
 {
@@ -182,21 +184,25 @@ void Sensor::setRefValue(int reference)
     referenceValue = reference;
 }
 
-void Sensor::setRefRange(int range)
-{
-    referenceRange = range;
-    upperRange = referenceValue + range;
-    lowerRange = referenceValue - range;
-}
+// void Sensor::setRefRange(int range)
+// {
+//     referenceRange = range;
+//     upperRange = referenceValue + range;
+//     lowerRange = referenceValue - range;
+// }
 
 void Sensor::setUpperRange(int range)
 {
     upperRange = range;
+    // referenceValue = (upperRange + lowerRange) / 2;
+    // referenceRange = (upperRange - lowerRange) / 2;
 }
 
 void Sensor::setLowerRange(int range)
 {
     lowerRange = range;
+    // referenceValue = (upperRange + lowerRange) / 2;
+    // referenceRange = (upperRange - lowerRange) / 2;
 }
 
 void Sensor::setOffset(int sensorOffset)
