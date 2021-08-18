@@ -9,6 +9,7 @@ Repository consists of software and brief description of each individual step to
     + [Built With](#built-with)
   * [Getting Started](#getting-started)
     + [Prerequisites](#prerequisites)
+    + [Software versions at the time of build](#software-versions-at-the-time-of-build)
   * [Installation](#installation)
     + [Uploading bootloader](#uploading-bootloader)
     + [Uploading software via PlatformIO](#Uploading-software-via-PlatformIO)
@@ -46,8 +47,12 @@ Follow this steps to upload firmware and software to your Sensogrip pencil.
 * PlatformIO
 * [J-Link debugger](https://www.segger.com/products/debug-probes/j-link/)
 * [JFlashSPI Software](https://www.segger.com/downloads/jlink)
-* Optional: Arduino IDE (with Mbed OS boards support installed)
 
+### Software versions at the time of build
+
+* PlatformIO IDE (2.3.3)
+* Visual Studio Code (1.59.0)
+* [JFlashSPI Software (6.86d)](https://www.segger.com/downloads/jlink)
 
 ## Installation
 
