@@ -19,16 +19,16 @@ Repository consists of software and brief description of each individual step to
 
 ## About The Project
 
-Sensogrip pencil was developed as a therapeutical help tool for children with graphomotoric difficulties. It consists of two sensors: one for measuring tip pressure, and the second one for measuring finger pressure. User is able to get feedback via built-in RGB led or via mobile app.
+Sensogrip pencil was developed as a therapeutic help tool for children with graphomotoric difficulties. It consists of two sensors: one for measuring tip pressure, and the second one for measuring finger pressure. The user is able to get feedback via built-in RGB LED or via mobile app.
 
 It features:
 * Piezoelectric sensor for measuring tip pressure
 * FSR sensor for measuring finger pressure
-* Optical RGB led feedback (for example: green color lights up when the pressure on the sensors is right)
-* Automatic measured pressure correction with angle from build-in IMU
-* Sleep funtion with wake-up by shaking
+* Optical RGB LED feedback (for example: green color lights up when the pressure on the sensors is right)
+* Automatic measured pressure correction with angle from built-in IMU
+* Sleep function with wake-up by shaking
 * Bluetooth BLE connectivity
-* Rechargable battery, which provides up to 10 hour of operating time
+* Rechargeable battery, which provides up to 10 hours of operating time
 * Mobile App companion
 
 ### Built With
